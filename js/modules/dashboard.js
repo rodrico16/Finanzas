@@ -35,11 +35,13 @@ function destroyChart(id) {
 
 function renderDashGeneral() {
   const months = getMonthsSorted();
+  ensureChartCanvas('chart-evolucion');
+  ensureChartCanvas('chart-doughnut');
   if (months.length === 0) {
     const c1 = document.getElementById('chart-evolucion');
     const c2 = document.getElementById('chart-doughnut');
-    if (c1) c1.parentElement.innerHTML = '<div class="no-data-chart">📭 Sin datos guardados. Cargá y guardá al menos un mes.</div>';
-    if (c2) c2.parentElement.innerHTML = '<div class="no-data-chart">📭 Sin datos guardados.</div>';
+    showChartEmpty(c1, 'Sin datos guardados. Cargá y guardá al menos un mes.');
+    showChartEmpty(c2, 'Sin datos guardados.');
     return;
   }
 
@@ -55,6 +57,7 @@ function renderDashGeneral() {
   destroyChart('evolucion');
   const ctxE = document.getElementById('chart-evolucion');
   if (ctxE) {
+    hideChartEmpty(ctxE);
     charts['evolucion'] = new Chart(ctxE, {
       type: 'line',
       data: {
@@ -84,6 +87,7 @@ function renderDashGeneral() {
   destroyChart('doughnut');
   const ctxD = document.getElementById('chart-doughnut');
   if (ctxD && catNames.length > 0) {
+    hideChartEmpty(ctxD);
     charts['doughnut'] = new Chart(ctxD, {
       type: 'doughnut',
       data: {
@@ -104,7 +108,7 @@ function renderDashGeneral() {
       }
     });
   } else if (ctxD) {
-    ctxD.parentElement.innerHTML = '<div class="no-data-chart">Sin gastos cargados en el último mes.</div>';
+    showChartEmpty(ctxD, 'Sin gastos cargados en el último mes.');
   }
 }
 
@@ -181,10 +185,11 @@ function renderDashInversion() {
   const tableEl = document.getElementById('inv-history-table');
 
   destroyChart('inversion');
+  ensureChartCanvas('chart-inversion');
   const ctxI = document.getElementById('chart-inversion');
 
   if (months.length === 0) {
-    if (ctxI) ctxI.parentElement.innerHTML = '<div class="no-data-chart">Sin datos guardados.</div>';
+    showChartEmpty(ctxI, 'Sin datos guardados.');
     if (tableEl) tableEl.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div>Sin historial de inversiones.</div>';
     return;
   }
@@ -194,6 +199,7 @@ function renderDashInversion() {
   const real = months.map(m => state.months[m].invReal || 0);
 
   if (ctxI) {
+    hideChartEmpty(ctxI);
     charts['inversion'] = new Chart(ctxI, {
       type: 'line',
       data: {
@@ -243,3 +249,25 @@ function renderDashInversion() {
   }
 }
 
+function ensureChartCanvas(id) {
+  if (document.getElementById(id)) return;
+  const placeholder = document.querySelector(`[data-chart-empty-for="${id}"]`);
+  if (!placeholder?.parentElement) return;
+  const canvas = document.createElement('canvas');
+  canvas.id = id;
+  placeholder.replaceWith(canvas);
+}
+
+function showChartEmpty(canvas, message) {
+  if (!canvas?.parentElement) return;
+  const placeholder = document.createElement('div');
+  placeholder.className = 'no-data-chart';
+  placeholder.dataset.chartEmptyFor = canvas.id;
+  placeholder.textContent = message;
+  canvas.replaceWith(placeholder);
+}
+
+function hideChartEmpty(canvas) {
+  if (!canvas) return;
+  canvas.hidden = false;
+}

@@ -5,7 +5,10 @@ let appReady = false;
 ================================================= */
 function switchView(view) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('.main-nav button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.main-nav button').forEach(b => {
+    b.classList.remove('active');
+    b.setAttribute('aria-selected', 'false');
+  });
   const viewElement = document.getElementById('view-' + view);
   const tabElement = document.getElementById('tab-' + view) || (view === 'dashboard' ? document.getElementById('tab-dash') : null);
   if (!viewElement || !tabElement) {
@@ -15,6 +18,7 @@ function switchView(view) {
   }
   viewElement.classList.add('active');
   tabElement.classList.add('active');
+  tabElement.setAttribute('aria-selected', 'true');
   if (view === 'dashboard') {
     const activeTab = document.querySelector('.dash-tab.active');
     if (activeTab) {
@@ -129,6 +133,10 @@ function updatePersonaLabels() {
 ================================================= */
 document.addEventListener('DOMContentLoaded', function() {
   setupAuthScreen();
+  document.querySelectorAll('.main-nav button').forEach(button => {
+    button.setAttribute('role', 'tab');
+    button.setAttribute('aria-selected', button.classList.contains('active') ? 'true' : 'false');
+  });
 
   document.getElementById('name-p1').addEventListener('input', function() {
     state.names.p1 = this.value || 'Persona 1';
