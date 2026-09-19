@@ -14,10 +14,10 @@ Rediseña la experiencia principal de la PWA para que la carga mensual sea más 
 
 - Reorganización visual de la vista de carga mensual con hero operativo, pasos rápidos y panel dedicado al mes de trabajo.
 - Sistema visual más consistente: variables de color, radios, sombras, estados de foco, tarjetas y botones.
-- Header sticky con navegación por pestañas, selector de espacio, acciones de sesión/exportación/importación y nombres de personas.
+- Header sticky con navegación por pestañas, selector de espacio local, acciones de exportación/importación y nombres de personas.
 - Agrupación funcional de colaboración, ingresos, objetivos, cotizaciones, inversión real, templates, gastos, resumen, sugerencias y comparativa.
 - Mejoras responsivas para desktop, tablet y mobile mediante grillas adaptables.
-- Estados de autenticación y mensajes de seguridad sobre datos financieros locales y exportaciones JSON.
+- Modo local directo, sin bloqueo de autenticación, con mensajes de cuidado sobre datos financieros locales y exportaciones JSON.
 
 ## Archivos principales
 
@@ -30,7 +30,7 @@ Rediseña la experiencia principal de la PWA para que la carga mensual sea más 
 
 | Caso | Escenario obligatorio | Resultado |
 | --- | --- | --- |
-| Acceso a la app | Pantalla bloqueada muestra inicio de sesión y aviso de datos sensibles | Aprobado por inspección de DOM |
+| Acceso a la app | La app abre directo en modo local sin login de Google | Aprobado por inspección de DOM |
 | Configurar hogar | Editar nombres de P1/P2 actualiza etiquetas de ingresos | Cubierto por flujo en `js/core/ui.js` |
 | Elegir mes | Cambiar `current-month` carga datos existentes o limpia campos del mes nuevo | Cubierto por listener de mes |
 | Cargar ingresos | Inputs de ingresos recalculan totales | Cubierto por wiring `oninput="recalculate()"` |
@@ -57,10 +57,10 @@ Resultado: 2 tests aprobados. La suite imprime un error simulado de cuota excedi
 npm run build
 ```
 
-Resultado: build estático verificado. Advertencia esperada: `GOOGLE_CLIENT_ID` no definido en el entorno local, por lo que el deploy quedaría sin botón de inicio de sesión hasta configurar esa variable pública.
+Resultado: build estático verificado. La app no requiere configuración de Google para publicar ni usar el modo local.
 
 ## Riesgos y notas
 
 - No se ejecutó prueba E2E en navegador real; la validación fue por inspección de estructura y pruebas automatizadas disponibles.
-- La autenticación depende de `GOOGLE_CLIENT_ID` inyectado por entorno de despliegue.
+- La publicación actual no tiene autenticación real; los espacios son locales al navegador y no reemplazan permisos entre cuentas.
 - No se modificaron credenciales, remotos de git, commits, pushes ni PRs remotos.

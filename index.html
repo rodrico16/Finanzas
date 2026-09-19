@@ -6,13 +6,7 @@
 <meta name="theme-color" content="#1a56db" />
 <link rel="manifest" href="/manifest.webmanifest" />
 <title>Planificación Financiera Familiar</title>
-<script src="google-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://accounts.google.com/gsi/client" async defer onload="window.dispatchEvent(new Event('google-identity-loaded'))"></script>
-<script>
-  // Configurar solo un Client ID público de OAuth mediante el entorno de despliegue.
-  // No incluir secretos de Google ni tokens en el código fuente.
-</script>
 <style>
   /* =============================================
      VARIABLES Y RESET
@@ -883,76 +877,12 @@
     border: 1px dashed var(--neutral-300);
   }
 
-  /* =============================================
-     LOGIN / ACCESO
-  ============================================= */
-  .app-locked #app-header,
-  .app-locked #app-content {
-    display: none;
-  }
-  #auth-screen {
-    min-height: 100vh;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    background: linear-gradient(180deg, #eef8f7 0%, #f7f9fb 58%, #e4e7ec 100%);
-  }
-  .app-locked #auth-screen {
-    display: flex;
-  }
-  .auth-card {
-    width: 100%;
-    max-width: 460px;
-    background: var(--white);
-    border: 1px solid var(--neutral-200);
-    border-radius: var(--radius-lg);
-    padding: 1.4rem;
-    box-shadow: var(--shadow-lg);
-  }
-  .auth-card h2 span,
   #app-header h1 .brand-mark { color: var(--primary); }
-  .auth-card h2 {
-    font-size: 1.25rem;
-    margin-bottom: 0.35rem;
-  }
-  .auth-card p {
-    color: var(--neutral-600);
-    font-size: 0.9rem;
-    margin-bottom: 0.9rem;
-  }
-  .auth-help {
-    margin-top: 0.85rem;
-    padding: 0.6rem 0.75rem;
-    background: var(--warning-light);
-    color: #7a4f00;
-    border: 1px solid #f7df87;
-    border-radius: var(--radius-sm);
-    font-size: 0.8rem;
-  }
-  .auth-error {
-    color: var(--danger);
-    font-size: 0.82rem;
-    min-height: 1.1rem;
-    margin-bottom: 0.55rem;
-  }
 
 </style>
 </head>
 <body>
 
-
-<div id="auth-screen" aria-live="polite">
-  <div class="auth-card">
-    <h2 id="auth-title">Acceso a tu panel financiero</h2>
-    <p id="auth-subtitle">Iniciá sesión con Google para abrir este panel en tu navegador.</p>
-    <div id="google-login-btn" style="display:flex;justify-content:center;margin:0.6rem 0 0.5rem;"></div>
-    <p class="auth-error" id="auth-error"></p>
-    <div class="auth-help" id="auth-help-text">
-      Esta app guarda datos financieros en este navegador y, si conectás Drive, en tu carpeta privada de la app. No compartas exportaciones JSON con información sensible.
-    </div>
-  </div>
-</div>
 
 <!-- =============================================
      HEADER
@@ -975,7 +905,7 @@
     <div class="header-actions">
       <select id="workspace-selector" style="max-width:230px;padding:0.38rem 0.5rem;border-radius:6px;border:1px solid var(--neutral-300);">
       </select>
-      <button id="btn-lock-app" onclick="logoutGoogle()">Cerrar sesión</button>
+      <button id="btn-lock-app" onclick="resetLocalSession()">Espacio principal</button>
       <button onclick="exportJSON()">Exportar</button>
       <button onclick="document.getElementById('import-file').click()">Importar</button>
       <input type="file" id="import-file" accept=".json" style="display:none" onchange="importJSON(event)" />
@@ -1023,7 +953,7 @@
       <div class="card-body grid-2">
         <div>
           <div class="form-group">
-            <label>Usuario logueado</label>
+            <label>Modo de uso</label>
             <div id="collab-current-user" class="text-muted">-</div>
           </div>
           <div class="form-group">
