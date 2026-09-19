@@ -18,17 +18,19 @@
      VARIABLES Y RESET
   ============================================= */
   :root {
-    --primary: #1a56db;
-    --primary-dark: #1240a8;
-    --primary-light: #e8effe;
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --primary-light: #dbeafe;
+    --accent: #0f766e;
+    --accent-light: #ccfbf1;
     --success: #057a55;
     --success-light: #d5f5e3;
     --warning: #c27803;
     --warning-light: #fef3c7;
     --danger: #c81e1e;
     --danger-light: #fde8e8;
-    --neutral-50: #f9fafb;
-    --neutral-100: #f3f4f6;
+    --neutral-50: #fafafa;
+    --neutral-100: #f4f6f8;
     --neutral-200: #e5e7eb;
     --neutral-300: #d1d5db;
     --neutral-400: #9ca3af;
@@ -39,11 +41,11 @@
     --neutral-900: #111827;
     --white: #ffffff;
     --radius-sm: 6px;
-    --radius: 10px;
-    --radius-lg: 16px;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
-    --shadow: 0 4px 12px rgba(0,0,0,0.1);
-    --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+    --radius: 8px;
+    --radius-lg: 12px;
+    --shadow-sm: 0 1px 2px rgba(15,23,42,0.06);
+    --shadow: 0 10px 25px rgba(15,23,42,0.08);
+    --shadow-lg: 0 18px 45px rgba(15,23,42,0.14);
     --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
     --transition: 0.2s ease;
   }
@@ -51,7 +53,9 @@
   html { font-size: 15px; }
   body {
     font-family: var(--font);
-    background: var(--neutral-100);
+    background:
+      linear-gradient(180deg, #eef4ff 0, rgba(238,244,255,0) 340px),
+      var(--neutral-100);
     color: var(--neutral-800);
     min-height: 100vh;
     line-height: 1.5;
@@ -61,15 +65,20 @@
     font-size: 0.92rem;
   }
   button { cursor: pointer; }
+  :focus-visible {
+    outline: 3px solid rgba(37,99,235,0.35);
+    outline-offset: 2px;
+  }
   h1,h2,h3,h4 { font-weight: 600; color: var(--neutral-900); }
 
   /* =============================================
      LAYOUT PRINCIPAL
   ============================================= */
   #app-header {
-    background: linear-gradient(135deg, #1a3a6e 0%, #1a56db 100%);
+    background: rgba(15,23,42,0.94);
+    backdrop-filter: blur(16px);
     color: white;
-    padding: 0 1.5rem;
+    padding: 0.75rem 1.5rem;
     box-shadow: var(--shadow);
     position: sticky;
     top: 0;
@@ -82,13 +91,19 @@
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 0.5rem;
-    min-height: 60px;
+    gap: 0.85rem;
+    min-height: 76px;
+  }
+  .brand-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 245px;
   }
   #app-header h1 {
     color: white;
-    font-size: 1.2rem;
-    letter-spacing: 0.3px;
+    font-size: 1.08rem;
+    letter-spacing: 0;
     white-space: nowrap;
   }
   #app-header h1 span {
@@ -100,13 +115,17 @@
   .main-nav {
     display: flex;
     gap: 0.25rem;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: var(--radius);
+    padding: 0.25rem;
   }
   .main-nav button {
-    background: rgba(255,255,255,0.12);
-    border: 1px solid rgba(255,255,255,0.2);
+    background: transparent;
+    border: 0;
     color: white;
     padding: 0.45rem 1.1rem;
-    border-radius: var(--radius-sm);
+    border-radius: 6px;
     font-size: 0.9rem;
     font-weight: 500;
     transition: var(--transition);
@@ -122,6 +141,7 @@
     display: flex;
     gap: 0.4rem;
     flex-wrap: wrap;
+    align-items: center;
   }
   .header-actions button {
     background: rgba(255,255,255,0.12);
@@ -137,7 +157,7 @@
   #app-content {
     max-width: 1280px;
     margin: 0 auto;
-    padding: 1.5rem;
+    padding: 1.25rem 1.5rem 2rem;
   }
 
   /* =============================================
@@ -154,7 +174,7 @@
     border-radius: var(--radius);
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--neutral-200);
-    margin-bottom: 1rem;
+    margin-bottom: 0.9rem;
     overflow: hidden;
   }
   .card-header {
@@ -176,6 +196,21 @@
   }
   .card-header h3 .icon { font-size: 1rem; }
   .card-body { padding: 1.2rem; }
+  .section-title {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 1.25rem 0 0.7rem;
+  }
+  .section-title h2 {
+    font-size: 1rem;
+    letter-spacing: 0;
+  }
+  .section-title p {
+    color: var(--neutral-500);
+    font-size: 0.86rem;
+  }
 
   /* =============================================
      GRID Y COLUMNAS
@@ -228,7 +263,7 @@
     width: 100%;
     padding: 0.55rem 0.75rem;
     border: 1px solid var(--neutral-300);
-    border-radius: var(--radius-sm);
+    border-radius: 7px;
     background: var(--white);
     color: var(--neutral-800);
     transition: border-color var(--transition);
@@ -250,12 +285,13 @@
     align-items: center;
     gap: 0.35rem;
     padding: 0.5rem 1rem;
-    border-radius: var(--radius-sm);
+    border-radius: 7px;
     border: none;
     font-size: 0.88rem;
     font-weight: 500;
     transition: var(--transition);
     white-space: nowrap;
+    min-height: 36px;
   }
   .btn-primary {
     background: var(--primary);
@@ -286,6 +322,7 @@
   .btn-sm {
     padding: 0.3rem 0.65rem;
     font-size: 0.8rem;
+    min-height: 32px;
   }
   .btn-xs {
     padding: 0.2rem 0.45rem;
@@ -315,8 +352,9 @@
     background: var(--white);
     border-radius: var(--radius);
     border: 1px solid var(--neutral-200);
-    padding: 1rem 1.2rem;
+    padding: 1rem 1.05rem;
     box-shadow: var(--shadow-sm);
+    min-height: 112px;
   }
   .stat-card .stat-label {
     font-size: 0.78rem;
@@ -348,7 +386,7 @@
   .category-block {
     border: 1px solid var(--neutral-200);
     border-radius: var(--radius);
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.6rem;
     background: var(--white);
     box-shadow: var(--shadow-sm);
     overflow: hidden;
@@ -357,7 +395,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.75rem 1rem;
+    padding: 0.85rem 1rem;
     cursor: pointer;
     background: var(--neutral-50);
     user-select: none;
@@ -372,14 +410,14 @@
     gap: 0.6rem;
   }
   .category-toggle {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: var(--primary-light);
     color: var(--primary);
-    border-radius: 50%;
+    border-radius: 7px;
     font-size: 0.75rem;
     font-weight: 700;
     transition: transform var(--transition);
@@ -411,7 +449,7 @@
   /* Items de gasto */
   .expense-item {
     display: grid;
-    grid-template-columns: 2fr 1.5fr 1.2fr 1fr auto;
+    grid-template-columns: minmax(150px,2fr) minmax(130px,1.4fr) minmax(105px,1fr) 86px 36px;
     gap: 0.5rem;
     align-items: center;
     padding: 0.5rem 0;
@@ -461,7 +499,7 @@
   .currency-rate-item {
     background: var(--neutral-50);
     border: 1px solid var(--neutral-200);
-    border-radius: var(--radius-sm);
+    border-radius: 7px;
     padding: 0.65rem 0.85rem;
     display: flex;
     flex-direction: column;
@@ -496,7 +534,7 @@
     align-items: flex-start;
     gap: 0.6rem;
     padding: 0.7rem 0.9rem;
-    border-radius: var(--radius-sm);
+    border-radius: 7px;
     font-size: 0.88rem;
     line-height: 1.45;
   }
@@ -560,6 +598,8 @@
     padding: 0.35rem;
     width: fit-content;
     box-shadow: var(--shadow-sm);
+    max-width: 100%;
+    overflow-x: auto;
   }
   .dash-tab {
     padding: 0.45rem 1.1rem;
@@ -602,6 +642,9 @@
     width: 100%;
     border-collapse: collapse;
     font-size: 0.85rem;
+  }
+  #inv-history-table {
+    overflow-x: auto;
   }
   .data-table th {
     background: var(--neutral-50);
@@ -663,6 +706,7 @@
     color: white;
     outline: none;
   }
+  #workspace-selector option { color: var(--neutral-900); }
   .persona-names input::placeholder { color: rgba(255,255,255,0.6); }
   .persona-names input:focus {
     border-color: rgba(255,255,255,0.7);
@@ -740,9 +784,27 @@
   .month-selector-row {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 0.75rem;
     flex-wrap: wrap;
     margin-bottom: 1rem;
+    padding: 1rem;
+    background: var(--white);
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+  }
+  .month-main {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .month-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-wrap: wrap;
   }
   .month-selector-row label {
     font-size: 0.82rem;
@@ -757,6 +819,34 @@
   }
   .empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
   .inline-flex { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+  .action-panel {
+    border-left: 4px solid var(--accent);
+  }
+  .muted-panel {
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+  }
+  .field-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.9rem;
+  }
+  @media (max-width: 900px) {
+    .field-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 640px) {
+    #app-header { padding: 0.75rem; }
+    #app-header .header-inner { align-items: stretch; }
+    .brand-block, .main-nav, .header-actions { width: 100%; }
+    .main-nav button { flex: 1; }
+    .header-actions button, .header-actions select { flex: 1 1 auto; }
+    .field-grid { grid-template-columns: 1fr; }
+    .month-selector-row { align-items: stretch; }
+    .month-main, .month-actions { width: 100%; }
+    .month-actions .btn { flex: 1 1 145px; justify-content: center; }
+    #toast-container { left: 0.75rem; right: 0.75rem; bottom: 0.75rem; }
+    .btn { white-space: normal; }
+    .stat-card .stat-value { font-size: 1.25rem; overflow-wrap: anywhere; }
+  }
   .text-right { text-align: right; }
   .text-muted { color: var(--neutral-500); font-size: 0.85rem; }
   .mt-1 { margin-top: 0.5rem; }
@@ -792,6 +882,14 @@
   @keyframes toastIn {
     from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+    }
   }
   .no-data-chart {
     display: flex;
@@ -879,7 +977,7 @@
 ============================================= -->
 <header id="app-header">
   <div class="header-inner">
-    <div style="display:flex;flex-direction:column;gap:2px;">
+    <div class="brand-block">
       <h1>💰 FinanzasFamiliares <span id="header-month-label"></span></h1>
       <div class="persona-names">
         <label>P1:</label>
@@ -889,8 +987,8 @@
       </div>
     </div>
     <nav class="main-nav">
-      <button id="tab-carga" class="active" onclick="switchView('carga')">📋 Carga Mensual</button>
-      <button id="tab-dash" onclick="switchView('dashboard')">📊 Dashboards</button>
+      <button id="tab-carga" class="active" onclick="switchView('carga')" aria-label="Ver carga mensual">📋 Carga Mensual</button>
+      <button id="tab-dash" onclick="switchView('dashboard')" aria-label="Ver dashboards">📊 Dashboards</button>
     </nav>
     <div class="header-actions">
       <select id="workspace-selector" style="max-width:230px;padding:0.38rem 0.5rem;border-radius:6px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:white;">
@@ -912,17 +1010,45 @@
 
     <!-- Selector de Mes -->
     <div class="month-selector-row">
-      <label>📅 Mes de trabajo:</label>
-      <input type="month" id="current-month" style="width:auto;" />
-      <button class="btn btn-primary btn-sm" onclick="saveMonth()">💾 Guardar mes</button>
-      <button class="btn btn-ghost btn-sm" onclick="loadMonthData()">📂 Cargar mes</button>
-      <button class="btn btn-ghost btn-sm" onclick="deleteCurrentMonth()">🗑️ Eliminar mes</button>
+      <div class="month-main">
+        <label for="current-month">📅 Mes de trabajo</label>
+        <input type="month" id="current-month" style="width:auto;" />
+      </div>
+      <div class="month-actions">
+        <button class="btn btn-primary btn-sm" onclick="saveMonth()">💾 Guardar mes</button>
+        <button class="btn btn-ghost btn-sm" onclick="loadMonthData()">📂 Cargar mes</button>
+        <button class="btn btn-ghost btn-sm" onclick="deleteCurrentMonth()">🗑️ Eliminar mes</button>
+      </div>
     </div>
 
-    <!-- GRID SUPERIOR: Ingresos + Objetivos -->
-    <div class="card">
+    <!-- RESUMEN DEL MES -->
+    <div class="card action-panel">
       <div class="card-header">
-        <h3><span class="icon">🤝</span> Colaboración</h3>
+        <h3><span class="icon">📊</span> Resumen del Mes</h3>
+        <span class="text-muted">Disponible, gasto e inversión para decidir rápido</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-4" id="summary-stats"></div>
+        <hr class="separator" />
+        <h4 style="font-size:0.88rem;color:var(--neutral-600);margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.4px;">Resumen por categoría</h4>
+        <div class="cat-summary-grid" id="summary-categories"></div>
+        <hr class="separator" />
+        <div id="profile-display"></div>
+      </div>
+    </div>
+
+    <div class="section-title">
+      <div>
+        <h2>Cargar el Mes</h2>
+        <p>Primero ingresos y gastos; después objetivos, herramientas y análisis.</p>
+      </div>
+    </div>
+
+    <!-- Estado del espacio -->
+    <div class="card muted-panel">
+      <div class="card-header">
+        <h3><span class="icon">🤝</span> Espacio y colaboración</h3>
+        <span class="text-muted">La carga mensual funciona aunque uses solo guardado local</span>
       </div>
       <div class="card-body grid-2">
         <div>
@@ -1021,6 +1147,13 @@
       </div>
     </div>
 
+    <div class="section-title">
+      <div>
+        <h2>Herramientas del Mes</h2>
+        <p>Cotizaciones, cierre de inversión y estructuras guardadas para acelerar la carga.</p>
+      </div>
+    </div>
+
     <!-- COTIZACIÓN DE MONEDAS -->
     <div class="card">
       <div class="card-header">
@@ -1093,7 +1226,8 @@
     <!-- TEMPLATES -->
     <div class="card">
       <div class="card-header">
-        <h3><span class="icon">📋</span> Templates de Gastos</h3>
+        <h3><span class="icon">📋</span> Estructuras de gastos</h3>
+        <span class="text-muted">Guardá y reutilizá una base mensual</span>
       </div>
       <div class="card-body">
         <div class="inline-flex">
@@ -1105,6 +1239,13 @@
           <button class="btn btn-success btn-sm" onclick="applyTemplate()">▶ Aplicar</button>
           <button class="btn btn-danger btn-sm" onclick="deleteTemplate()">🗑️ Borrar</button>
         </div>
+      </div>
+    </div>
+
+    <div class="section-title">
+      <div>
+        <h2>Gastos y Análisis</h2>
+        <p>Cargá las categorías, revisá alertas y compará contra otros meses.</p>
       </div>
     </div>
 
@@ -1126,21 +1267,6 @@
           <span class="text-muted">Total gastos:</span>
           <span class="fw-bold color-danger" id="total-expenses-display" style="font-size:1.1rem;">$ 0</span>
         </div>
-      </div>
-    </div>
-
-    <!-- RESUMEN DEL MES -->
-    <div class="card">
-      <div class="card-header">
-        <h3><span class="icon">📊</span> Resumen del Mes</h3>
-      </div>
-      <div class="card-body">
-        <div class="grid-4" id="summary-stats"></div>
-        <hr class="separator" />
-        <h4 style="font-size:0.88rem;color:var(--neutral-600);margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.4px;">Resumen por categoría</h4>
-        <div class="cat-summary-grid" id="summary-categories"></div>
-        <hr class="separator" />
-        <div id="profile-display"></div>
       </div>
     </div>
 
@@ -1242,7 +1368,7 @@
 
 </div><!-- /app-content -->
 
-<div id="toast-container"></div>
+<div id="toast-container" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <script src="js/core/state.js"></script>
 <script src="js/modules/categories.js"></script>
