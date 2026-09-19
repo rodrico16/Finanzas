@@ -82,7 +82,7 @@ function buildCategoryBlockHTML(cat, isOpen) {
   return `
     <div class="category-header" data-cat-header="${cat.id}">
       <div class="category-header-left">
-        <div class="category-toggle ${isOpen ? 'open' : ''}" data-cat-toggle="${cat.id}">▶</div>
+        <button class="category-toggle ${isOpen ? 'open' : ''}" data-cat-toggle="${cat.id}" type="button" aria-expanded="${isOpen ? 'true' : 'false'}" aria-label="${isOpen ? 'Colapsar' : 'Expandir'} ${escHtml(cat.name)}">▶</button>
         <span class="category-name">${escHtml(cat.name)}</span>
         <span class="badge badge-neutral">${count} ítem${count !== 1 ? 's' : ''}</span>
       </div>
@@ -127,17 +127,20 @@ function attachCategoryListeners(block, catId) {
   const toggle = block.querySelector(`[data-cat-toggle="${catId}"]`);
   header.addEventListener('click', function(e) {
     if (e.target.closest('button') || e.target.tagName === 'BUTTON') return;
-    const isOpen = body.classList.contains('open');
-    if (isOpen) {
-      body.classList.remove('open');
-      toggle.classList.remove('open');
-      categoryOpenState[catId] = false;
-    } else {
-      body.classList.add('open');
-      toggle.classList.add('open');
-      categoryOpenState[catId] = true;
-    }
+    toggleCategoryBody(catId, body, toggle);
   });
+  toggle.addEventListener('click', function() {
+    toggleCategoryBody(catId, body, toggle);
+  });
+}
+
+function toggleCategoryBody(catId, body, toggle) {
+  const willOpen = !body.classList.contains('open');
+  body.classList.toggle('open', willOpen);
+  toggle.classList.toggle('open', willOpen);
+  toggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+  toggle.setAttribute('aria-label', `${willOpen ? 'Colapsar' : 'Expandir'} categoría`);
+  categoryOpenState[catId] = willOpen;
 }
 
 function onItemFieldChange(el) {
@@ -222,6 +225,7 @@ function expandAllCategories() {
     categoryOpenState[b.dataset.catBody] = true;
   });
   document.querySelectorAll('.category-toggle').forEach(t => t.classList.add('open'));
+  document.querySelectorAll('.category-toggle').forEach(t => t.setAttribute('aria-expanded', 'true'));
 }
 
 function collapseAllCategories() {
@@ -230,6 +234,7 @@ function collapseAllCategories() {
     categoryOpenState[b.dataset.catBody] = false;
   });
   document.querySelectorAll('.category-toggle').forEach(t => t.classList.remove('open'));
+  document.querySelectorAll('.category-toggle').forEach(t => t.setAttribute('aria-expanded', 'false'));
 }
 
 function getCategoriesData() {
@@ -300,4 +305,3 @@ function updateCategoryTotals() {
     if (badgeEl) badgeEl.textContent = `${count} ítem${count !== 1 ? 's' : ''}`;
   });
 }
-

@@ -18,32 +18,35 @@
      VARIABLES Y RESET
   ============================================= */
   :root {
-    --primary: #1a56db;
-    --primary-dark: #1240a8;
-    --primary-light: #e8effe;
-    --success: #057a55;
-    --success-light: #d5f5e3;
-    --warning: #c27803;
+    --primary: #155e75;
+    --primary-dark: #0e4456;
+    --primary-soft: #dff4f7;
+    --primary-light: #e8f7f8;
+    --success: #16794c;
+    --success-light: #def7ec;
+    --warning: #a16207;
     --warning-light: #fef3c7;
-    --danger: #c81e1e;
-    --danger-light: #fde8e8;
-    --neutral-50: #f9fafb;
-    --neutral-100: #f3f4f6;
-    --neutral-200: #e5e7eb;
-    --neutral-300: #d1d5db;
-    --neutral-400: #9ca3af;
-    --neutral-500: #6b7280;
-    --neutral-600: #4b5563;
-    --neutral-700: #374151;
-    --neutral-800: #1f2937;
-    --neutral-900: #111827;
+    --danger: #b42318;
+    --danger-light: #fee4e2;
+    --neutral-50: #fbfcfd;
+    --neutral-100: #f4f6f8;
+    --neutral-200: #e4e7ec;
+    --neutral-300: #cbd5e1;
+    --neutral-400: #94a3b8;
+    --neutral-500: #64748b;
+    --neutral-600: #475569;
+    --neutral-700: #334155;
+    --neutral-800: #1e293b;
+    --neutral-900: #0f172a;
+    --accent: #7c2d12;
+    --accent-light: #ffedd5;
     --white: #ffffff;
     --radius-sm: 6px;
-    --radius: 10px;
-    --radius-lg: 16px;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
-    --shadow: 0 4px 12px rgba(0,0,0,0.1);
-    --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+    --radius: 8px;
+    --radius-lg: 12px;
+    --shadow-sm: 0 1px 2px rgba(15,23,42,0.06);
+    --shadow: 0 8px 18px rgba(15,23,42,0.08);
+    --shadow-lg: 0 18px 50px rgba(15,23,42,0.14);
     --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
     --transition: 0.2s ease;
   }
@@ -51,7 +54,8 @@
   html { font-size: 15px; }
   body {
     font-family: var(--font);
-    background: var(--neutral-100);
+    background:
+      linear-gradient(180deg, #eef8f7 0, #f7f9fb 280px, var(--neutral-100) 100%);
     color: var(--neutral-800);
     min-height: 100vh;
     line-height: 1.5;
@@ -62,18 +66,24 @@
   }
   button { cursor: pointer; }
   h1,h2,h3,h4 { font-weight: 600; color: var(--neutral-900); }
+  :focus-visible {
+    outline: 3px solid rgba(21,94,117,0.28);
+    outline-offset: 2px;
+  }
 
   /* =============================================
      LAYOUT PRINCIPAL
   ============================================= */
   #app-header {
-    background: linear-gradient(135deg, #1a3a6e 0%, #1a56db 100%);
-    color: white;
-    padding: 0 1.5rem;
+    background: rgba(255,255,255,0.92);
+    color: var(--neutral-900);
+    padding: 0 1.25rem;
     box-shadow: var(--shadow);
     position: sticky;
     top: 0;
     z-index: 100;
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(203,213,225,0.75);
   }
   #app-header .header-inner {
     max-width: 1280px;
@@ -82,17 +92,18 @@
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 0.5rem;
-    min-height: 60px;
+    gap: 0.8rem;
+    min-height: 72px;
   }
+  .brand-block { display:flex; flex-direction:column; gap:4px; min-width: 220px; }
   #app-header h1 {
-    color: white;
-    font-size: 1.2rem;
-    letter-spacing: 0.3px;
+    color: var(--neutral-900);
+    font-size: 1.12rem;
+    letter-spacing: 0;
     white-space: nowrap;
   }
   #app-header h1 span {
-    opacity: 0.75;
+    color: var(--primary);
     font-weight: 400;
     font-size: 0.85rem;
     margin-left: 0.5rem;
@@ -102,20 +113,20 @@
     gap: 0.25rem;
   }
   .main-nav button {
-    background: rgba(255,255,255,0.12);
-    border: 1px solid rgba(255,255,255,0.2);
-    color: white;
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--neutral-600);
     padding: 0.45rem 1.1rem;
     border-radius: var(--radius-sm);
     font-size: 0.9rem;
     font-weight: 500;
     transition: var(--transition);
   }
-  .main-nav button:hover { background: rgba(255,255,255,0.22); }
+  .main-nav button:hover { background: var(--neutral-100); color: var(--neutral-900); }
   .main-nav button.active {
-    background: white;
-    color: var(--primary);
-    border-color: white;
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
     font-weight: 600;
   }
   .header-actions {
@@ -124,20 +135,25 @@
     flex-wrap: wrap;
   }
   .header-actions button {
-    background: rgba(255,255,255,0.12);
-    border: 1px solid rgba(255,255,255,0.25);
-    color: white;
+    background: var(--white);
+    border: 1px solid var(--neutral-300);
+    color: var(--neutral-700);
     padding: 0.4rem 0.85rem;
     border-radius: var(--radius-sm);
     font-size: 0.82rem;
     transition: var(--transition);
   }
-  .header-actions button:hover { background: rgba(255,255,255,0.22); }
+  .header-actions button:hover { background: var(--neutral-100); color: var(--neutral-900); }
+  .header-actions select {
+    color: var(--neutral-800) !important;
+    background: var(--white) !important;
+    border-color: var(--neutral-300) !important;
+  }
 
   #app-content {
     max-width: 1280px;
     margin: 0 auto;
-    padding: 1.5rem;
+    padding: 1.25rem;
   }
 
   /* =============================================
@@ -158,9 +174,9 @@
     overflow: hidden;
   }
   .card-header {
-    padding: 0.85rem 1.2rem;
+    padding: 0.9rem 1rem;
     border-bottom: 1px solid var(--neutral-200);
-    background: var(--neutral-50);
+    background: linear-gradient(180deg, #fff 0%, var(--neutral-50) 100%);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -168,14 +184,67 @@
     flex-wrap: wrap;
   }
   .card-header h3 {
-    font-size: 0.95rem;
+    font-size: 0.98rem;
     color: var(--neutral-700);
     display: flex;
     align-items: center;
     gap: 0.4rem;
   }
   .card-header h3 .icon { font-size: 1rem; }
-  .card-body { padding: 1.2rem; }
+  .card-body { padding: 1rem; }
+  .section-kicker {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 0.35rem;
+  }
+  .workbench-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
+    gap: 1rem;
+    align-items: stretch;
+    margin-bottom: 1rem;
+  }
+  .workbench-panel {
+    background: var(--white);
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius-lg);
+    padding: 1rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .workbench-panel h2 {
+    font-size: 1.45rem;
+    line-height: 1.2;
+    margin-bottom: 0.4rem;
+  }
+  .workbench-panel p { color: var(--neutral-600); max-width: 68ch; }
+  .quick-steps {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.65rem;
+    margin-top: 0.9rem;
+  }
+  .quick-step {
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius);
+    padding: 0.75rem;
+    background: var(--neutral-50);
+  }
+  .quick-step strong { display:block; color: var(--neutral-900); font-size:0.9rem; }
+  .quick-step span { display:block; color: var(--neutral-500); font-size:0.82rem; margin-top:0.15rem; }
+  .month-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.9rem;
+    background: var(--primary-dark);
+    color: white;
+  }
+  .month-panel label { color: rgba(255,255,255,0.8); }
+  .month-panel input { border-color: rgba(255,255,255,0.35); }
+  .month-actions { display:flex; gap:0.45rem; flex-wrap:wrap; }
 
   /* =============================================
      GRID Y COLUMNAS
@@ -198,10 +267,16 @@
   @media (max-width: 900px) {
     .grid-4 { grid-template-columns: 1fr 1fr; }
     .grid-3 { grid-template-columns: 1fr 1fr; }
+    .workbench-hero { grid-template-columns: 1fr; }
   }
   @media (max-width: 600px) {
     .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
     #app-content { padding: 0.75rem; }
+    #app-header { position: static; }
+    #app-header .header-inner { align-items: stretch; }
+    .main-nav, .header-actions, .persona-names { width: 100%; }
+    .main-nav button { flex: 1; }
+    .quick-steps { grid-template-columns: 1fr; }
   }
 
   /* =============================================
@@ -219,7 +294,7 @@
     font-weight: 600;
     color: var(--neutral-600);
     text-transform: uppercase;
-    letter-spacing: 0.4px;
+    letter-spacing: 0.3px;
   }
   input[type="text"],
   input[type="number"],
@@ -236,7 +311,7 @@
   }
   input:focus, select:focus, textarea:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(26,86,219,0.1);
+    box-shadow: 0 0 0 3px rgba(21,94,117,0.13);
   }
   input[type="number"] { -moz-appearance: textfield; }
   input[type="number"]::-webkit-inner-spin-button,
@@ -256,6 +331,7 @@
     font-weight: 500;
     transition: var(--transition);
     white-space: nowrap;
+    justify-content: center;
   }
   .btn-primary {
     background: var(--primary);
@@ -278,7 +354,7 @@
   }
   .btn-danger:hover { background: #a11818; }
   .btn-ghost {
-    background: transparent;
+    background: var(--white);
     color: var(--neutral-600);
     border: 1px solid var(--neutral-300);
   }
@@ -327,7 +403,7 @@
     margin-bottom: 0.25rem;
   }
   .stat-card .stat-value {
-    font-size: 1.5rem;
+    font-size: clamp(1.12rem, 1.7vw, 1.45rem);
     font-weight: 700;
     color: var(--neutral-900);
     line-height: 1.2;
@@ -359,7 +435,7 @@
     justify-content: space-between;
     padding: 0.75rem 1rem;
     cursor: pointer;
-    background: var(--neutral-50);
+    background: #fff;
     user-select: none;
     transition: background var(--transition);
     flex-wrap: wrap;
@@ -379,11 +455,13 @@
     justify-content: center;
     background: var(--primary-light);
     color: var(--primary);
-    border-radius: 50%;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
     font-size: 0.75rem;
     font-weight: 700;
     transition: transform var(--transition);
     flex-shrink: 0;
+    padding: 0;
   }
   .category-toggle.open { transform: rotate(90deg); }
   .category-name {
@@ -411,7 +489,7 @@
   /* Items de gasto */
   .expense-item {
     display: grid;
-    grid-template-columns: 2fr 1.5fr 1.2fr 1fr auto;
+    grid-template-columns: minmax(150px, 2fr) minmax(120px, 1.3fr) minmax(110px, 1fr) 88px 38px;
     gap: 0.5rem;
     align-items: center;
     padding: 0.5rem 0;
@@ -496,7 +574,7 @@
     align-items: flex-start;
     gap: 0.6rem;
     padding: 0.7rem 0.9rem;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius);
     font-size: 0.88rem;
     line-height: 1.45;
   }
@@ -658,18 +736,18 @@
     padding: 0.3rem 0.6rem;
     font-size: 0.88rem;
     border-radius: var(--radius-sm);
-    border: 1px solid rgba(255,255,255,0.35);
-    background: rgba(255,255,255,0.15);
-    color: white;
+    border: 1px solid var(--neutral-300);
+    background: var(--white);
+    color: var(--neutral-800);
     outline: none;
   }
-  .persona-names input::placeholder { color: rgba(255,255,255,0.6); }
+  .persona-names input::placeholder { color: var(--neutral-400); }
   .persona-names input:focus {
-    border-color: rgba(255,255,255,0.7);
-    background: rgba(255,255,255,0.2);
+    border-color: var(--primary);
+    background: var(--white);
   }
   .persona-names label {
-    color: rgba(255,255,255,0.8);
+    color: var(--neutral-500);
     font-size: 0.78rem;
     text-transform: uppercase;
     font-weight: 600;
@@ -818,7 +896,7 @@
     align-items: center;
     justify-content: center;
     padding: 1rem;
-    background: radial-gradient(circle at top, #e8effe 0%, #f3f4f6 55%, #e5e7eb 100%);
+    background: linear-gradient(180deg, #eef8f7 0%, #f7f9fb 58%, #e4e7ec 100%);
   }
   .app-locked #auth-screen {
     display: flex;
@@ -832,6 +910,8 @@
     padding: 1.4rem;
     box-shadow: var(--shadow-lg);
   }
+  .auth-card h2 span,
+  #app-header h1 .brand-mark { color: var(--primary); }
   .auth-card h2 {
     font-size: 1.25rem;
     margin-bottom: 0.35rem;
@@ -864,12 +944,12 @@
 
 <div id="auth-screen" aria-live="polite">
   <div class="auth-card">
-    <h2 id="auth-title">🔐 Acceso protegido</h2>
-    <p id="auth-subtitle">Ingresá tu contraseña para abrir tu panel.</p>
+    <h2 id="auth-title">Acceso a tu panel financiero</h2>
+    <p id="auth-subtitle">Iniciá sesión con Google para abrir este panel en tu navegador.</p>
     <div id="google-login-btn" style="display:flex;justify-content:center;margin:0.6rem 0 0.5rem;"></div>
     <p class="auth-error" id="auth-error"></p>
     <div class="auth-help" id="auth-help-text">
-      Esta barrera protege de accesos casuales en este navegador. Para seguridad real en GitHub Pages, necesitás backend con autenticación.
+      Esta app guarda datos financieros en este navegador y, si conectás Drive, en tu carpeta privada de la app. No compartas exportaciones JSON con información sensible.
     </div>
   </div>
 </div>
@@ -879,8 +959,8 @@
 ============================================= -->
 <header id="app-header">
   <div class="header-inner">
-    <div style="display:flex;flex-direction:column;gap:2px;">
-      <h1>💰 FinanzasFamiliares <span id="header-month-label"></span></h1>
+    <div class="brand-block">
+      <h1><span class="brand-mark">◆</span> Finanzas Familiares <span id="header-month-label"></span></h1>
       <div class="persona-names">
         <label>P1:</label>
         <input type="text" id="name-p1" placeholder="Persona 1" maxlength="20" />
@@ -888,16 +968,16 @@
         <input type="text" id="name-p2" placeholder="Persona 2" maxlength="20" />
       </div>
     </div>
-    <nav class="main-nav">
+    <nav class="main-nav" role="tablist" aria-label="Secciones principales">
       <button id="tab-carga" class="active" onclick="switchView('carga')">📋 Carga Mensual</button>
       <button id="tab-dash" onclick="switchView('dashboard')">📊 Dashboards</button>
     </nav>
     <div class="header-actions">
-      <select id="workspace-selector" style="max-width:230px;padding:0.38rem 0.5rem;border-radius:6px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:white;">
+      <select id="workspace-selector" style="max-width:230px;padding:0.38rem 0.5rem;border-radius:6px;border:1px solid var(--neutral-300);">
       </select>
-      <button id="btn-lock-app" onclick="logoutGoogle()">🚪 Cerrar sesión</button>
-      <button onclick="exportJSON()">⬇️ Exportar</button>
-      <button onclick="document.getElementById('import-file').click()">⬆️ Importar</button>
+      <button id="btn-lock-app" onclick="logoutGoogle()">Cerrar sesión</button>
+      <button onclick="exportJSON()">Exportar</button>
+      <button onclick="document.getElementById('import-file').click()">Importar</button>
       <input type="file" id="import-file" accept=".json" style="display:none" onchange="importJSON(event)" />
     </div>
   </div>
@@ -910,13 +990,29 @@
   ============================================= -->
   <div id="view-carga" class="view active">
 
-    <!-- Selector de Mes -->
-    <div class="month-selector-row">
-      <label>📅 Mes de trabajo:</label>
-      <input type="month" id="current-month" style="width:auto;" />
-      <button class="btn btn-primary btn-sm" onclick="saveMonth()">💾 Guardar mes</button>
-      <button class="btn btn-ghost btn-sm" onclick="loadMonthData()">📂 Cargar mes</button>
-      <button class="btn btn-ghost btn-sm" onclick="deleteCurrentMonth()">🗑️ Eliminar mes</button>
+    <div class="workbench-hero">
+      <section class="workbench-panel">
+        <div class="section-kicker">Planificación mensual</div>
+        <h2>Ordená ingresos, gastos e inversión de este mes.</h2>
+        <p>Usá este flujo para cargar el mes, revisar el disponible y guardar una foto histórica que después puedas comparar en dashboards.</p>
+        <div class="quick-steps" aria-label="Pasos principales">
+          <div class="quick-step"><strong>1. Elegí mes</strong><span>Trabajá siempre sobre un período claro.</span></div>
+          <div class="quick-step"><strong>2. Cargá datos</strong><span>Ingresos, objetivos, gastos e inversión real.</span></div>
+          <div class="quick-step"><strong>3. Guardá y revisá</strong><span>Generá historial para comparar y decidir.</span></div>
+        </div>
+      </section>
+      <section class="workbench-panel month-panel" aria-label="Mes de trabajo">
+        <div>
+          <label for="current-month">Mes de trabajo</label>
+          <input type="month" id="current-month" style="width:100%;margin-top:0.35rem;" />
+          <p style="font-size:0.84rem;color:rgba(255,255,255,0.72);margin-top:0.5rem;">El botón Guardar mes conserva los datos como historial. Los cambios de campos también intentan guardarse localmente.</p>
+        </div>
+        <div class="month-actions">
+          <button class="btn btn-primary btn-sm" onclick="saveMonth()">Guardar mes</button>
+          <button class="btn btn-ghost btn-sm" onclick="loadMonthData()">Cargar mes</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteCurrentMonth()">Eliminar</button>
+        </div>
+      </section>
     </div>
 
     <!-- GRID SUPERIOR: Ingresos + Objetivos -->
