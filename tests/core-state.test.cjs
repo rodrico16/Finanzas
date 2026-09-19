@@ -57,11 +57,11 @@ test('cambiar de espacio empieza desde un estado limpio y no arrastra meses', as
   assert.equal(app.context.__state().currencies.EUR, 1300);
 });
 
-test('saveState devuelve false y comunica el fallo cuando localStorage rechaza la escritura', () => {
+test('saveState devuelve false y comunica el fallo cuando localStorage rechaza la escritura', async () => {
   const key = 'finanzasFamiliares_v6::workspace-a';
   const app = loadStateModule({}, new Set([key]));
 
-  assert.equal(app.context.__save(), false);
+  assert.equal(await app.context.__save(), false);
   assert.deepEqual(app.notifications, [{
     message: 'No se pudieron guardar los cambios. Verificá el almacenamiento del navegador.',
     type: 'error',
