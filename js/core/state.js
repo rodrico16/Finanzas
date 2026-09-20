@@ -156,7 +156,7 @@ function setVal(id, val) {
 /* =================================================
    GUARDAR / CARGAR MES
 ================================================= */
-function saveMonth() {
+async function saveMonth() {
   const m = state.currentMonth;
   if (!m) { toast('Seleccioná un mes primero', 'error'); return; }
   state.months[m] = getCurrentMonthData();
@@ -164,7 +164,8 @@ function saveMonth() {
   if (invType && !state.invTypes.includes(invType)) {
     state.invTypes.push(invType);
   }
-  saveState();
+  const saved = await saveState();
+  if (!saved) return;
   toast('Mes guardado ✔', 'success');
   updateCompareSelectors();
   refreshDashboards();
@@ -180,16 +181,18 @@ function loadMonthData() {
   toast('Mes cargado', 'success');
 }
 
-function deleteCurrentMonth() {
+async function deleteCurrentMonth() {
   const m = state.currentMonth;
   if (!m) return;
   if (!state.months[m]) { toast('No hay datos guardados para ese mes', 'info'); return; }
   if (!confirm(`¿Eliminar los datos de ${m}?`)) return;
   const deleted = state.months[m];
   delete state.months[m];
-  saveState().catch(() => {
+  const saved = await saveState();
+  if (!saved) {
     state.months[m] = deleted;
-  });
+    return;
+  }
   updateCompareSelectors();
   refreshDashboards();
   toast('Mes eliminado', 'info');
