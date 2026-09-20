@@ -169,6 +169,7 @@ async function saveMonth() {
   const saved = await saveState();
   if (saved) toast('Mes guardado ✔', 'success');
   updateCompareSelectors();
+  recalculate();
   refreshDashboards();
   return saved;
 }
@@ -191,6 +192,7 @@ async function deleteCurrentMonth() {
   delete state.months[m];
   const saved = await saveState();
   updateCompareSelectors();
+  recalculate();
   refreshDashboards();
   if (saved) toast('Mes eliminado', 'info');
   return saved;

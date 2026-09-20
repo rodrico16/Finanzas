@@ -193,6 +193,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (workspaceSelector) {
     workspaceSelector.addEventListener('change', function() {
       switchWorkspace(this.value);
+      recalculate();
     });
   }
 });
