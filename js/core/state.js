@@ -98,6 +98,8 @@ async function saveState() {
         }
       } catch (remoteError) {
         console.warn('Error guardando en Google Drive:', remoteError);
+        toast('Los cambios quedaron guardados localmente, pero no se pudieron confirmar en Google Drive.', 'error');
+        return false;
       }
     }
     return true;
@@ -156,18 +158,19 @@ function setVal(id, val) {
 /* =================================================
    GUARDAR / CARGAR MES
 ================================================= */
-function saveMonth() {
+async function saveMonth() {
   const m = state.currentMonth;
-  if (!m) { toast('Seleccioná un mes primero', 'error'); return; }
+  if (!m) { toast('Seleccioná un mes primero', 'error'); return false; }
   state.months[m] = getCurrentMonthData();
   const invType = document.getElementById('inv-type').value.trim();
   if (invType && !state.invTypes.includes(invType)) {
     state.invTypes.push(invType);
   }
-  saveState();
-  toast('Mes guardado ✔', 'success');
+  const saved = await saveState();
+  if (saved) toast('Mes guardado ✔', 'success');
   updateCompareSelectors();
   refreshDashboards();
+  return saved;
 }
 
 function loadMonthData() {
@@ -180,17 +183,15 @@ function loadMonthData() {
   toast('Mes cargado', 'success');
 }
 
-function deleteCurrentMonth() {
+async function deleteCurrentMonth() {
   const m = state.currentMonth;
-  if (!m) return;
-  if (!state.months[m]) { toast('No hay datos guardados para ese mes', 'info'); return; }
-  if (!confirm(`¿Eliminar los datos de ${m}?`)) return;
-  const deleted = state.months[m];
+  if (!m) return false;
+  if (!state.months[m]) { toast('No hay datos guardados para ese mes', 'info'); return false; }
+  if (!confirm(`¿Eliminar los datos de ${m}?`)) return false;
   delete state.months[m];
-  saveState().catch(() => {
-    state.months[m] = deleted;
-  });
+  const saved = await saveState();
   updateCompareSelectors();
   refreshDashboards();
-  toast('Mes eliminado', 'info');
+  if (saved) toast('Mes eliminado', 'info');
+  return saved;
 }
