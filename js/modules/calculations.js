@@ -35,6 +35,7 @@ function recalculate() {
   renderCategorySummary(catData, totalExpenses);
   renderProfileDisplay(invProfile, disponible);
   renderSuggestions(totalIncome, totalExpenses, disponible, invReal, invGoal, savingsRate, catData, emergencyPct, emergencyCurrent, emergencyTarget, invProfile);
+  renderMonthProgress(totalIncome, totalExpenses, invReal, catData);
 }
 
 function renderSummaryStats(totalIncome, totalExpenses, disponible, invReal, invGoal, savingsRate, emergencyPct) {
@@ -176,12 +177,57 @@ function renderSuggestions(totalIncome, totalExpenses, disponible, invReal, invG
     el.innerHTML = '<div class="suggestion-item info"><span class="s-icon">ℹ️</span><span>Cargá ingresos y gastos para obtener sugerencias automáticas.</span></div>';
     return;
   }
-  el.innerHTML = suggestions.map(s =>
+  el.innerHTML = suggestions.slice(0, 3).map(s =>
     `<div class="suggestion-item ${s.type}"><span class="s-icon">${s.icon}</span><span>${s.text}</span></div>`
   ).join('');
+}
+
+function renderMonthProgress(totalIncome, totalExpenses, invReal, catData) {
+  const statusEl = document.getElementById('month-status-label');
+  const checklistEl = document.getElementById('month-checklist');
+  const savedData = state.months[state.currentMonth];
+  const hasExpenses = totalExpenses > 0;
+  const hasData = totalIncome > 0 || hasExpenses || invReal > 0;
+  const hasWarnings = totalIncome === 0 || !hasExpenses || totalExpenses > totalIncome;
+
+  if (statusEl) {
+    if (savedData) statusEl.textContent = 'Guardado';
+    else if (hasData) statusEl.textContent = hasWarnings ? 'Datos incompletos' : 'Sin guardar';
+    else statusEl.textContent = 'Nuevo';
+  }
+
+  if (!checklistEl) return;
+  const checks = [
+    {
+      done: totalIncome > 0,
+      title: 'Ingresos cargados',
+      detail: totalIncome > 0 ? fmtARS(totalIncome) : 'Falta cargar ingresos',
+    },
+    {
+      done: hasExpenses,
+      title: 'Gastos revisados',
+      detail: hasExpenses ? `${catData.filter(c => c.total > 0).length} categorias con gasto` : 'Falta cargar gastos',
+    },
+    {
+      done: invReal > 0,
+      title: 'Inversion cargada',
+      detail: invReal > 0 ? fmtARS(invReal) : 'Sin inversion real',
+    },
+    {
+      done: !hasWarnings && hasData,
+      title: 'Alertas revisadas',
+      detail: hasWarnings ? 'Revisar faltantes o deficit' : 'Listo para guardar',
+    },
+  ];
+
+  checklistEl.innerHTML = checks.map(check => `
+    <div class="check-item ${check.done ? 'done' : 'pending'}">
+      <strong>${check.done ? 'OK' : 'Pendiente'} · ${escHtml(check.title)}</strong>
+      <span>${escHtml(check.detail)}</span>
+    </div>
+  `).join('');
 }
 
 function normKey(str) {
   return (str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
 }
-

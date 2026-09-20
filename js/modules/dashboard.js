@@ -15,6 +15,7 @@ function renderDashboardTab(tab) {
   if (tab === 'general') renderDashGeneral();
   else if (tab === 'gastos') renderDashGastos();
   else if (tab === 'inversion') renderDashInversion();
+  else if (tab === 'comparar') updateCompareSelectors();
 }
 
 function refreshDashboards() {
