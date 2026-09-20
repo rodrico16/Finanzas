@@ -167,9 +167,10 @@ async function saveMonth() {
     state.invTypes.push(invType);
   }
   const saved = await saveState();
-  if (saved) toast('Mes guardado ✔', 'success');
+  if (saved) toast('Cierre guardado', 'success');
   updateCompareSelectors();
   refreshDashboards();
+  recalculate();
   return saved;
 }
 
@@ -192,6 +193,7 @@ async function deleteCurrentMonth() {
   const saved = await saveState();
   updateCompareSelectors();
   refreshDashboards();
+  recalculate();
   if (saved) toast('Mes eliminado', 'info');
   return saved;
 }

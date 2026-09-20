@@ -234,6 +234,66 @@
   }
   .quick-step strong { display:block; color: var(--neutral-900); font-size:0.9rem; }
   .quick-step span { display:block; color: var(--neutral-500); font-size:0.82rem; margin-top:0.15rem; }
+  .context-bar {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) minmax(220px, 1.1fr) auto;
+    gap: 0.75rem;
+    align-items: end;
+    margin-bottom: 1rem;
+  }
+  .context-item {
+    background: var(--white);
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius);
+    padding: 0.75rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .context-item label,
+  .context-item .context-label {
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+  .context-value {
+    color: var(--neutral-900);
+    font-weight: 700;
+  }
+  .context-actions {
+    display: flex;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .completion-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.65rem;
+  }
+  .check-item {
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius);
+    padding: 0.75rem;
+    background: var(--neutral-50);
+    min-height: 78px;
+  }
+  .check-item strong {
+    display: block;
+    color: var(--neutral-900);
+    font-size: 0.9rem;
+  }
+  .check-item span {
+    display: block;
+    color: var(--neutral-500);
+    font-size: 0.8rem;
+    margin-top: 0.15rem;
+  }
+  .check-item.done {
+    border-color: rgba(22,121,76,0.28);
+    background: var(--success-light);
+  }
+  .check-item.pending {
+    border-color: rgba(161,98,7,0.28);
+    background: var(--warning-light);
+  }
   .month-panel {
     display: flex;
     flex-direction: column;
@@ -277,6 +337,10 @@
     .main-nav, .header-actions, .persona-names { width: 100%; }
     .main-nav button { flex: 1; }
     .quick-steps { grid-template-columns: 1fr; }
+    .context-bar { grid-template-columns: 1fr; }
+    .context-actions { justify-content: stretch; }
+    .context-actions .btn { flex: 1; }
+    .completion-grid { grid-template-columns: 1fr; }
   }
 
   /* =============================================
@@ -969,16 +1033,14 @@
       </div>
     </div>
     <nav class="main-nav" role="tablist" aria-label="Secciones principales">
-      <button id="tab-carga" class="active" onclick="switchView('carga')">📋 Carga Mensual</button>
-      <button id="tab-dash" onclick="switchView('dashboard')">📊 Dashboards</button>
+      <button id="tab-carga" class="active" onclick="switchView('carga')">Mes</button>
+      <button id="tab-dash" onclick="switchView('dashboard')">Historial</button>
+      <button id="tab-ajustes" onclick="switchView('ajustes')">Ajustes</button>
     </nav>
     <div class="header-actions">
       <select id="workspace-selector" style="max-width:230px;padding:0.38rem 0.5rem;border-radius:6px;border:1px solid var(--neutral-300);">
       </select>
       <button id="btn-lock-app" onclick="logoutGoogle()">Cerrar sesión</button>
-      <button onclick="exportJSON()">Exportar</button>
-      <button onclick="document.getElementById('import-file').click()">Importar</button>
-      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importJSON(event)" />
     </div>
   </div>
 </header>
@@ -986,74 +1048,52 @@
 <div id="app-content">
 
   <!-- =============================================
-       VISTA: CARGA MENSUAL
+       VISTA: MES
   ============================================= -->
   <div id="view-carga" class="view active">
 
-    <div class="workbench-hero">
-      <section class="workbench-panel">
-        <div class="section-kicker">Planificación mensual</div>
-        <h2>Ordená ingresos, gastos e inversión de este mes.</h2>
-        <p>Usá este flujo para cargar el mes, revisar el disponible y guardar una foto histórica que después puedas comparar en dashboards.</p>
-        <div class="quick-steps" aria-label="Pasos principales">
-          <div class="quick-step"><strong>1. Elegí mes</strong><span>Trabajá siempre sobre un período claro.</span></div>
-          <div class="quick-step"><strong>2. Cargá datos</strong><span>Ingresos, objetivos, gastos e inversión real.</span></div>
-          <div class="quick-step"><strong>3. Guardá y revisá</strong><span>Generá historial para comparar y decidir.</span></div>
-        </div>
-      </section>
-      <section class="workbench-panel month-panel" aria-label="Mes de trabajo">
-        <div>
+    <section class="context-bar" aria-label="Contexto del mes">
+      <div class="context-item">
           <label for="current-month">Mes de trabajo</label>
-          <input type="month" id="current-month" style="width:100%;margin-top:0.35rem;" />
-          <p style="font-size:0.84rem;color:rgba(255,255,255,0.72);margin-top:0.5rem;">El botón Guardar mes conserva los datos como historial. Los cambios de campos también intentan guardarse localmente.</p>
+        <input type="month" id="current-month" />
+      </div>
+      <div class="context-item">
+        <span class="context-label">Estado del mes</span>
+        <span class="context-value" id="month-status-label">Nuevo</span>
+        <p class="text-muted mt-1">Guardá el cierre para sumarlo al historial.</p>
         </div>
-        <div class="month-actions">
-          <button class="btn btn-primary btn-sm" onclick="saveMonth()">Guardar mes</button>
-          <button class="btn btn-ghost btn-sm" onclick="loadMonthData()">Cargar mes</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteCurrentMonth()">Eliminar</button>
+      <div class="context-actions">
+        <button class="btn btn-primary" onclick="saveMonth()">Guardar cierre</button>
+        <button class="btn btn-ghost" onclick="loadMonthData()">Cargar mes</button>
+        <button class="btn btn-danger" onclick="deleteCurrentMonth()">Eliminar</button>
         </div>
-      </section>
-    </div>
+    </section>
 
-    <!-- GRID SUPERIOR: Ingresos + Objetivos -->
     <div class="card">
       <div class="card-header">
-        <h3><span class="icon">🤝</span> Colaboración</h3>
+        <h3>Resumen inmediato</h3>
       </div>
-      <div class="card-body grid-2">
-        <div>
-          <div class="form-group">
-            <label>Usuario logueado</label>
-            <div id="collab-current-user" class="text-muted">-</div>
-          </div>
-          <div class="form-group">
-            <label>Espacio activo</label>
-            <div id="collab-workspace-meta" class="text-muted">-</div>
-          </div>
-          <button class="btn btn-primary btn-sm" id="btn-generate-invite" onclick="generateInviteCode()">Generar invitación</button>
-          <div class="form-group" style="margin-top:0.5rem;">
-            <label for="collab-invite-code">Código para compartir</label>
-            <textarea id="collab-invite-code" rows="2" readonly placeholder="Generá un código y compartilo con quien quieras invitar"></textarea>
-          </div>
-        </div>
-        <div>
-          <div class="form-group">
-            <label for="collab-join-code">Unirme con invitación</label>
-            <textarea id="collab-join-code" rows="4" placeholder="Pegá el código de invitación"></textarea>
-          </div>
-          <button class="btn btn-success btn-sm" onclick="joinWorkspaceByInvite()">Unirme al espacio</button>
-        </div>
+      <div class="card-body">
+        <div class="grid-4" id="summary-stats"></div>
       </div>
     </div>
 
-    <div class="grid-2">
-
-      <!-- INGRESOS -->
-      <div class="card">
+    <div class="card">
         <div class="card-header">
-          <h3><span class="icon">💵</span> Ingresos</h3>
+        <h3>Checklist de cierre</h3>
+      </div>
+      <div class="card-body">
+        <div class="completion-grid" id="month-checklist"></div>
+      </div>
+    </div>
+
+    <!-- INGRESOS -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Ingresos</h3>
         </div>
         <div class="card-body">
+        <div class="grid-3">
           <div class="form-group">
             <label id="label-p1">Ingreso Persona 1</label>
             <div class="inline-flex">
@@ -1075,6 +1115,7 @@
               <span class="text-muted">ARS</span>
             </div>
           </div>
+        </div>
           <hr class="separator" />
           <div class="inline-flex" style="justify-content:space-between;">
             <span class="text-muted">Ingreso total</span>
@@ -1083,89 +1124,30 @@
         </div>
       </div>
 
-      <!-- OBJETIVOS -->
-      <div class="card">
-        <div class="card-header">
-          <h3><span class="icon">🎯</span> Objetivos</h3>
-        </div>
-        <div class="card-body">
-          <div class="form-group">
-            <label>Objetivo mínimo de inversión mensual (ARS)</label>
-            <input type="number" id="inv-goal" placeholder="0" min="0" oninput="recalculate()" />
-          </div>
-          <div class="form-group">
-            <label>Nombre de meta principal</label>
-            <input type="text" id="meta-name" placeholder="Ej: Departamento propio" />
-          </div>
-          <div class="form-group">
-            <label>Meses objetivo para fondo de emergencia</label>
-            <input type="number" id="emergency-months" placeholder="6" min="1" max="24" oninput="recalculate()" />
-          </div>
-          <div class="form-group">
-            <label>Fondo de emergencia actual acumulado (ARS)</label>
-            <input type="number" id="emergency-current" placeholder="0" min="0" oninput="recalculate()" />
-          </div>
-          <div class="form-group">
-            <label>Perfil de inversión</label>
-            <select id="inv-profile" onchange="recalculate()">
-              <option value="conservador">Conservador</option>
-              <option value="moderado" selected>Moderado</option>
-              <option value="agresivo">Agresivo</option>
-            </select>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- COTIZACIÓN DE MONEDAS -->
+    <!-- GASTOS POR CATEGORÍA -->
     <div class="card">
-      <div class="card-header">
-        <h3><span class="icon">💱</span> Cotización de Monedas</h3>
-        <div id="currency-status-badge" class="currency-status manual">⚡ Manual</div>
+        <div class="card-header">
+        <h3>Gastos por categoria</h3>
+        <div class="inline-flex">
+          <button class="btn btn-ghost btn-sm" onclick="expandAllCategories()">Expandir todo</button>
+          <button class="btn btn-ghost btn-sm" onclick="collapseAllCategories()">Colapsar todo</button>
+          <button class="btn btn-primary btn-sm" onclick="addCategory()">+ Categoria</button>
+        </div>
       </div>
       <div class="card-body">
-        <div class="grid-2">
-          <div>
-            <div class="form-group">
-              <label>Moneda a configurar</label>
-              <select id="currency-selector">
-                <option value="USD">USD – Dólar</option>
-                <option value="EUR">EUR – Euro</option>
-                <option value="BRL">BRL – Real Brasileño</option>
-                <option value="UYU">UYU – Peso Uruguayo</option>
-                <option value="CLP">CLP – Peso Chileno</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Cotización manual (ARS por 1 unidad)</label>
-              <div class="inline-flex">
-                <input type="number" id="currency-manual-rate" placeholder="Ej: 1050" min="0" />
-                <button class="btn btn-primary btn-sm" onclick="saveManualRate()">Guardar</button>
-              </div>
-            </div>
-          </div>
-          <div>
-            <div class="form-group">
-              <!-- URL de API precargada con el endpoint por defecto -->
-              <label>URL de API de cotización</label>
-              <input type="text" id="api-url"
-                placeholder="https://api.exchangerate-api.com/v4/latest/ARS"
-                value="https://api.exchangerate-api.com/v4/latest/ARS" />
-            </div>
-            <div class="form-group mt-1">
-              <button class="btn btn-ghost btn-sm" onclick="fetchRateFromAPI()">🌐 Consultar por API</button>
-              <p class="text-muted mt-1" id="api-status-msg">—</p>
-            </div>
-          </div>
+        <datalist id="expense-type-list"></datalist>
+        <div id="categories-container"></div>
+        <div class="inline-flex" style="justify-content:flex-end;margin-top:0.5rem;">
+          <span class="text-muted">Total gastos:</span>
+          <span class="fw-bold color-danger" id="total-expenses-display" style="font-size:1.1rem;">$ 0</span>
         </div>
-        <div class="currency-rate-grid" id="currency-rate-grid"></div>
       </div>
     </div>
 
     <!-- CIERRE REAL DE INVERSIÓN -->
     <div class="card">
       <div class="card-header">
-        <h3><span class="icon">📈</span> Cierre Real de Inversión del Mes</h3>
+        <h3>Inversion del mes</h3>
       </div>
       <div class="card-body">
         <div class="grid-3">
@@ -1174,7 +1156,7 @@
             <input type="number" id="inv-real" placeholder="0" min="0" oninput="recalculate()" />
           </div>
           <div class="form-group">
-            <label>Tipo de inversión</label>
+            <label>Tipo de inversion</label>
             <input type="text" id="inv-type" placeholder="Ej: Plazo fijo, FCI, Cedears..." list="inv-type-list" />
             <datalist id="inv-type-list"></datalist>
           </div>
@@ -1186,53 +1168,51 @@
       </div>
     </div>
 
-    <!-- TEMPLATES -->
-    <div class="card">
-      <div class="card-header">
-        <h3><span class="icon">📋</span> Templates de Gastos</h3>
-      </div>
+    <!-- OBJETIVOS -->
+    <details class="card">
+      <summary class="card-header">
+        <h3>Objetivos avanzados</h3>
+      </summary>
       <div class="card-body">
-        <div class="inline-flex">
-          <input type="text" id="template-name" placeholder="Nombre del template..." style="flex:1;max-width:240px;" />
-          <button class="btn btn-primary btn-sm" onclick="saveTemplate()">💾 Guardar template</button>
-          <select id="template-selector" style="flex:1;max-width:220px;">
-            <option value="">— Seleccionar template —</option>
-          </select>
-          <button class="btn btn-success btn-sm" onclick="applyTemplate()">▶ Aplicar</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteTemplate()">🗑️ Borrar</button>
+        <div class="grid-2">
+          <div>
+            <div class="form-group">
+              <label>Objetivo minimo de inversion mensual (ARS)</label>
+              <input type="number" id="inv-goal" placeholder="0" min="0" oninput="recalculate()" />
+            </div>
+            <div class="form-group">
+              <label>Nombre de meta principal</label>
+              <input type="text" id="meta-name" placeholder="Ej: Departamento propio" />
+            </div>
+          </div>
+          <div>
+            <div class="form-group">
+              <label>Meses objetivo para fondo de emergencia</label>
+              <input type="number" id="emergency-months" placeholder="6" min="1" max="24" oninput="recalculate()" />
+            </div>
+            <div class="form-group">
+              <label>Fondo de emergencia actual acumulado (ARS)</label>
+              <input type="number" id="emergency-current" placeholder="0" min="0" oninput="recalculate()" />
+            </div>
+            <div class="form-group">
+              <label>Perfil de inversion</label>
+              <select id="inv-profile" onchange="recalculate()">
+                <option value="conservador">Conservador</option>
+                <option value="moderado" selected>Moderado</option>
+                <option value="agresivo">Agresivo</option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-
-    <!-- GASTOS POR CATEGORÍA -->
-    <div class="card">
-      <div class="card-header">
-        <h3><span class="icon">🧾</span> Gastos por Categoría</h3>
-        <div class="inline-flex">
-          <button class="btn btn-ghost btn-sm" onclick="expandAllCategories()">⊞ Expandir todo</button>
-          <button class="btn btn-ghost btn-sm" onclick="collapseAllCategories()">⊟ Colapsar todo</button>
-          <button class="btn btn-primary btn-sm" onclick="addCategory()">+ Categoría</button>
-        </div>
-      </div>
-      <div class="card-body">
-        <!-- datalist global de tipos de gasto -->
-        <datalist id="expense-type-list"></datalist>
-        <div id="categories-container"></div>
-        <div class="inline-flex" style="justify-content:flex-end;margin-top:0.5rem;">
-          <span class="text-muted">Total gastos:</span>
-          <span class="fw-bold color-danger" id="total-expenses-display" style="font-size:1.1rem;">$ 0</span>
-        </div>
-      </div>
-    </div>
+    </details>
 
     <!-- RESUMEN DEL MES -->
     <div class="card">
       <div class="card-header">
-        <h3><span class="icon">📊</span> Resumen del Mes</h3>
+        <h3>Revisar antes de guardar</h3>
       </div>
       <div class="card-body">
-        <div class="grid-4" id="summary-stats"></div>
-        <hr class="separator" />
         <h4 style="font-size:0.88rem;color:var(--neutral-600);margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.4px;">Resumen por categoría</h4>
         <div class="cat-summary-grid" id="summary-categories"></div>
         <hr class="separator" />
@@ -1243,45 +1223,25 @@
     <!-- SUGERENCIAS AUTOMÁTICAS -->
     <div class="card">
       <div class="card-header">
-        <h3><span class="icon">💡</span> Sugerencias Automáticas</h3>
+        <h3>Alertas y proximos pasos</h3>
       </div>
       <div class="card-body">
         <div class="suggestion-list" id="suggestions-list"></div>
       </div>
     </div>
 
-    <!-- COMPARATIVA MENSUAL -->
-    <div class="card">
-      <div class="card-header">
-        <h3><span class="icon">🔍</span> Comparativa Mensual</h3>
-      </div>
-      <div class="card-body">
-        <div class="grid-2">
-          <div class="form-group">
-            <label>Mes A</label>
-            <select id="compare-month-a"></select>
-          </div>
-          <div class="form-group">
-            <label>Mes B</label>
-            <select id="compare-month-b"></select>
-          </div>
-        </div>
-        <button class="btn btn-primary btn-sm" onclick="runComparison()">🔍 Comparar</button>
-        <div id="comparison-result" class="mt-2"></div>
-      </div>
-    </div>
-
   </div><!-- /view-carga -->
 
   <!-- =============================================
-       VISTA: DASHBOARDS
+       VISTA: HISTORIAL
   ============================================= -->
   <div id="view-dashboard" class="view">
 
     <div class="dash-tabs">
-      <button class="dash-tab active" onclick="switchDashTab('general',this)">📈 General</button>
-      <button class="dash-tab" onclick="switchDashTab('gastos',this)">🧾 Gastos</button>
-      <button class="dash-tab" onclick="switchDashTab('inversion',this)">💎 Inversión</button>
+      <button class="dash-tab active" onclick="switchDashTab('general',this)">Resumen</button>
+      <button class="dash-tab" onclick="switchDashTab('gastos',this)">Gastos</button>
+      <button class="dash-tab" onclick="switchDashTab('inversion',this)">Inversion</button>
+      <button class="dash-tab" onclick="switchDashTab('comparar',this)">Comparar</button>
     </div>
 
     <!-- DASH GENERAL -->
@@ -1334,7 +1294,149 @@
       </div>
     </div>
 
+    <!-- DASH COMPARAR -->
+    <div id="dash-comparar" class="dash-panel">
+      <div class="card">
+        <div class="card-header">
+          <h3>Comparativa mensual</h3>
+        </div>
+        <div class="card-body">
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Mes A</label>
+              <select id="compare-month-a"></select>
+            </div>
+            <div class="form-group">
+              <label>Mes B</label>
+              <select id="compare-month-b"></select>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="runComparison()">Comparar</button>
+          <div id="comparison-result" class="mt-2"></div>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /view-dashboard -->
+
+  <!-- =============================================
+       VISTA: AJUSTES
+  ============================================= -->
+  <div id="view-ajustes" class="view">
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header">
+          <h3>Integrantes</h3>
+        </div>
+        <div class="card-body">
+          <p class="text-muted">Editá los nombres desde el encabezado para que aparezcan en ingresos y reportes.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Datos</h3>
+        </div>
+        <div class="card-body">
+          <div class="inline-flex">
+            <button class="btn btn-ghost" onclick="exportJSON()">Exportar JSON</button>
+            <button class="btn btn-ghost" onclick="document.getElementById('import-file').click()">Importar JSON</button>
+            <input type="file" id="import-file" accept=".json" style="display:none" onchange="importJSON(event)" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3>Espacio compartido</h3>
+      </div>
+      <div class="card-body grid-2">
+        <div>
+          <div class="form-group">
+            <label>Usuario logueado</label>
+            <div id="collab-current-user" class="text-muted">-</div>
+          </div>
+          <div class="form-group">
+            <label>Espacio activo</label>
+            <div id="collab-workspace-meta" class="text-muted">-</div>
+          </div>
+          <button class="btn btn-primary btn-sm" id="btn-generate-invite" onclick="generateInviteCode()">Generar invitacion</button>
+          <div class="form-group" style="margin-top:0.5rem;">
+            <label for="collab-invite-code">Codigo para compartir</label>
+            <textarea id="collab-invite-code" rows="2" readonly placeholder="Genera un codigo y compartilo con quien quieras invitar"></textarea>
+          </div>
+        </div>
+        <div>
+          <div class="form-group">
+            <label for="collab-join-code">Unirme con invitacion</label>
+            <textarea id="collab-join-code" rows="4" placeholder="Pega el codigo de invitacion"></textarea>
+          </div>
+          <button class="btn btn-success btn-sm" onclick="joinWorkspaceByInvite()">Unirme al espacio</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3>Cotizaciones</h3>
+        <div id="currency-status-badge" class="currency-status manual">Manual</div>
+      </div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div>
+            <div class="form-group">
+              <label>Moneda a configurar</label>
+              <select id="currency-selector">
+                <option value="USD">USD - Dolar</option>
+                <option value="EUR">EUR - Euro</option>
+                <option value="BRL">BRL - Real Brasileno</option>
+                <option value="UYU">UYU - Peso Uruguayo</option>
+                <option value="CLP">CLP - Peso Chileno</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Cotizacion manual (ARS por 1 unidad)</label>
+              <div class="inline-flex">
+                <input type="number" id="currency-manual-rate" placeholder="Ej: 1050" min="0" />
+                <button class="btn btn-primary btn-sm" onclick="saveManualRate()">Guardar</button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="form-group">
+              <label>URL de API de cotizacion</label>
+              <input type="text" id="api-url"
+                placeholder="https://api.exchangerate-api.com/v4/latest/ARS"
+                value="https://api.exchangerate-api.com/v4/latest/ARS" />
+            </div>
+            <div class="form-group mt-1">
+              <button class="btn btn-ghost btn-sm" onclick="fetchRateFromAPI()">Consultar por API</button>
+              <p class="text-muted mt-1" id="api-status-msg">-</p>
+            </div>
+          </div>
+        </div>
+        <div class="currency-rate-grid" id="currency-rate-grid"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3>Plantillas</h3>
+      </div>
+      <div class="card-body">
+        <div class="inline-flex">
+          <input type="text" id="template-name" placeholder="Nombre de la plantilla..." style="flex:1;max-width:240px;" />
+          <button class="btn btn-primary btn-sm" onclick="saveTemplate()">Guardar plantilla</button>
+          <select id="template-selector" style="flex:1;max-width:220px;">
+            <option value="">- Seleccionar plantilla -</option>
+          </select>
+          <button class="btn btn-success btn-sm" onclick="applyTemplate()">Aplicar</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteTemplate()">Borrar</button>
+        </div>
+      </div>
+    </div>
+  </div><!-- /view-ajustes -->
 
 </div><!-- /app-content -->
 
