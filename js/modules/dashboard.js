@@ -15,6 +15,7 @@ function renderDashboardTab(tab) {
   if (tab === 'general') renderDashGeneral();
   else if (tab === 'gastos') renderDashGastos();
   else if (tab === 'inversion') renderDashInversion();
+  else if (tab === 'comparar') renderDashComparar();
 }
 
 function refreshDashboards() {
@@ -27,6 +28,16 @@ function refreshDashboards() {
 
 function getMonthsSorted() {
   return Object.keys(state.months).sort();
+}
+
+function renderDashComparar() {
+  updateCompareSelectors();
+  const result = document.getElementById('comparison-result');
+  if (!result) return;
+  const months = getMonthsSorted();
+  if (months.length < 2) {
+    result.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div>Guardá al menos dos cierres mensuales para comparar.</div>';
+  }
 }
 
 function destroyChart(id) {

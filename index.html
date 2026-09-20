@@ -245,6 +245,84 @@
   .month-panel label { color: rgba(255,255,255,0.8); }
   .month-panel input { border-color: rgba(255,255,255,0.35); }
   .month-actions { display:flex; gap:0.45rem; flex-wrap:wrap; }
+  .context-bar {
+    display: grid;
+    grid-template-columns: minmax(160px, 1fr) minmax(160px, 1fr) minmax(160px, 1fr) auto;
+    gap: 0.75rem;
+    align-items: end;
+    margin-bottom: 1rem;
+  }
+  .context-item {
+    background: var(--white);
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius);
+    padding: 0.75rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .context-item .context-label {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--neutral-500);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 0.2rem;
+  }
+  .context-value {
+    color: var(--neutral-900);
+    font-weight: 700;
+  }
+  .close-checklist {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.65rem;
+    margin: 1rem 0;
+  }
+  .check-item {
+    display: flex;
+    gap: 0.55rem;
+    align-items: flex-start;
+    background: var(--white);
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius);
+    padding: 0.75rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .check-dot {
+    width: 1.45rem;
+    height: 1.45rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: var(--neutral-200);
+    color: var(--neutral-600);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .check-item.done .check-dot {
+    background: var(--success-light);
+    color: var(--success);
+  }
+  .check-item strong { display:block; font-size:0.88rem; color:var(--neutral-900); }
+  .check-item span { display:block; font-size:0.8rem; color:var(--neutral-500); margin-top:0.1rem; }
+  details.settings-section {
+    background: var(--white);
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius);
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  details.settings-section > summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 0.9rem 1rem;
+    font-weight: 700;
+    color: var(--neutral-800);
+    border-bottom: 1px solid var(--neutral-200);
+    background: var(--neutral-50);
+  }
+  details.settings-section > summary::-webkit-details-marker { display: none; }
 
   /* =============================================
      GRID Y COLUMNAS
@@ -268,6 +346,9 @@
     .grid-4 { grid-template-columns: 1fr 1fr; }
     .grid-3 { grid-template-columns: 1fr 1fr; }
     .workbench-hero { grid-template-columns: 1fr; }
+    .context-bar { grid-template-columns: 1fr 1fr; }
+    .context-bar .month-actions { grid-column: 1 / -1; }
+    .close-checklist { grid-template-columns: 1fr 1fr; }
   }
   @media (max-width: 600px) {
     .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
@@ -277,6 +358,7 @@
     .main-nav, .header-actions, .persona-names { width: 100%; }
     .main-nav button { flex: 1; }
     .quick-steps { grid-template-columns: 1fr; }
+    .context-bar, .close-checklist { grid-template-columns: 1fr; }
   }
 
   /* =============================================
@@ -969,16 +1051,14 @@
       </div>
     </div>
     <nav class="main-nav" role="tablist" aria-label="Secciones principales">
-      <button id="tab-carga" class="active" onclick="switchView('carga')">📋 Carga Mensual</button>
-      <button id="tab-dash" onclick="switchView('dashboard')">📊 Dashboards</button>
+      <button id="tab-carga" class="active" onclick="switchView('carga')">Mes</button>
+      <button id="tab-dash" onclick="switchView('dashboard')">Historial</button>
+      <button id="tab-ajustes" onclick="switchView('ajustes')">Ajustes</button>
     </nav>
     <div class="header-actions">
       <select id="workspace-selector" style="max-width:230px;padding:0.38rem 0.5rem;border-radius:6px;border:1px solid var(--neutral-300);">
       </select>
       <button id="btn-lock-app" onclick="logoutGoogle()">Cerrar sesión</button>
-      <button onclick="exportJSON()">Exportar</button>
-      <button onclick="document.getElementById('import-file').click()">Importar</button>
-      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importJSON(event)" />
     </div>
   </div>
 </header>
@@ -986,64 +1066,57 @@
 <div id="app-content">
 
   <!-- =============================================
-       VISTA: CARGA MENSUAL
+       VISTA: MES
   ============================================= -->
   <div id="view-carga" class="view active">
 
+    <div class="context-bar" aria-label="Contexto del cierre mensual">
+      <div class="context-item">
+        <div class="context-label">Mes activo</div>
+        <div class="context-value" id="active-month-context">-</div>
+      </div>
+      <div class="context-item">
+        <div class="context-label">Espacio activo</div>
+        <div class="context-value" id="active-workspace-context">-</div>
+      </div>
+      <div class="context-item">
+        <div class="context-label">Estado</div>
+        <div class="context-value" id="month-status-context">Nuevo</div>
+      </div>
+      <div class="month-actions">
+        <button class="btn btn-primary btn-sm" onclick="saveMonth()">Guardar cierre</button>
+        <button class="btn btn-ghost btn-sm" onclick="loadMonthData()">Cargar mes</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCurrentMonth()">Eliminar</button>
+      </div>
+    </div>
+
     <div class="workbench-hero">
       <section class="workbench-panel">
-        <div class="section-kicker">Planificación mensual</div>
-        <h2>Ordená ingresos, gastos e inversión de este mes.</h2>
-        <p>Usá este flujo para cargar el mes, revisar el disponible y guardar una foto histórica que después puedas comparar en dashboards.</p>
+        <div class="section-kicker">Mes</div>
+        <h2>Cargá el mes, revisá el disponible y cerralo con confianza.</h2>
+        <p>El flujo prioriza ingresos, gastos, inversión del mes y alertas. Colaboración, plantillas, cotizaciones e importación quedan en Ajustes.</p>
         <div class="quick-steps" aria-label="Pasos principales">
-          <div class="quick-step"><strong>1. Elegí mes</strong><span>Trabajá siempre sobre un período claro.</span></div>
-          <div class="quick-step"><strong>2. Cargá datos</strong><span>Ingresos, objetivos, gastos e inversión real.</span></div>
-          <div class="quick-step"><strong>3. Guardá y revisá</strong><span>Generá historial para comparar y decidir.</span></div>
+          <div class="quick-step"><strong>1. Prepará</strong><span>Elegí el período de trabajo.</span></div>
+          <div class="quick-step"><strong>2. Cargá</strong><span>Ingresos, gastos e inversión real.</span></div>
+          <div class="quick-step"><strong>3. Revisá</strong><span>Mirá alertas y guardá el cierre.</span></div>
         </div>
       </section>
       <section class="workbench-panel month-panel" aria-label="Mes de trabajo">
         <div>
           <label for="current-month">Mes de trabajo</label>
           <input type="month" id="current-month" style="width:100%;margin-top:0.35rem;" />
-          <p style="font-size:0.84rem;color:rgba(255,255,255,0.72);margin-top:0.5rem;">El botón Guardar mes conserva los datos como historial. Los cambios de campos también intentan guardarse localmente.</p>
-        </div>
-        <div class="month-actions">
-          <button class="btn btn-primary btn-sm" onclick="saveMonth()">Guardar mes</button>
-          <button class="btn btn-ghost btn-sm" onclick="loadMonthData()">Cargar mes</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteCurrentMonth()">Eliminar</button>
+          <p style="font-size:0.84rem;color:rgba(255,255,255,0.72);margin-top:0.5rem;">Guardar cierre conserva los datos en el historial. Los cambios de campos también intentan guardarse localmente.</p>
         </div>
       </section>
     </div>
 
-    <!-- GRID SUPERIOR: Ingresos + Objetivos -->
-    <div class="card">
-      <div class="card-header">
-        <h3><span class="icon">🤝</span> Colaboración</h3>
-      </div>
-      <div class="card-body grid-2">
-        <div>
-          <div class="form-group">
-            <label>Usuario logueado</label>
-            <div id="collab-current-user" class="text-muted">-</div>
-          </div>
-          <div class="form-group">
-            <label>Espacio activo</label>
-            <div id="collab-workspace-meta" class="text-muted">-</div>
-          </div>
-          <button class="btn btn-primary btn-sm" id="btn-generate-invite" onclick="generateInviteCode()">Generar invitación</button>
-          <div class="form-group" style="margin-top:0.5rem;">
-            <label for="collab-invite-code">Código para compartir</label>
-            <textarea id="collab-invite-code" rows="2" readonly placeholder="Generá un código y compartilo con quien quieras invitar"></textarea>
-          </div>
-        </div>
-        <div>
-          <div class="form-group">
-            <label for="collab-join-code">Unirme con invitación</label>
-            <textarea id="collab-join-code" rows="4" placeholder="Pegá el código de invitación"></textarea>
-          </div>
-          <button class="btn btn-success btn-sm" onclick="joinWorkspaceByInvite()">Unirme al espacio</button>
-        </div>
-      </div>
+    <div class="grid-4" id="summary-stats"></div>
+
+    <div class="close-checklist" id="close-checklist" aria-label="Checklist de cierre">
+      <div class="check-item" id="check-income"><span class="check-dot">1</span><div><strong>Ingresos</strong><span>Pendiente de carga</span></div></div>
+      <div class="check-item" id="check-expenses"><span class="check-dot">2</span><div><strong>Gastos</strong><span>Pendiente de revisión</span></div></div>
+      <div class="check-item" id="check-investment"><span class="check-dot">3</span><div><strong>Inversión</strong><span>Pendiente de carga</span></div></div>
+      <div class="check-item" id="check-alerts"><span class="check-dot">4</span><div><strong>Alertas</strong><span>Se actualizan al revisar</span></div></div>
     </div>
 
     <div class="grid-2">
@@ -1086,7 +1159,7 @@
       <!-- OBJETIVOS -->
       <div class="card">
         <div class="card-header">
-          <h3><span class="icon">🎯</span> Objetivos</h3>
+          <h3><span class="icon">🎯</span> Objetivos avanzados</h3>
         </div>
         <div class="card-body">
           <div class="form-group">
@@ -1117,55 +1190,10 @@
       </div>
     </div>
 
-    <!-- COTIZACIÓN DE MONEDAS -->
-    <div class="card">
-      <div class="card-header">
-        <h3><span class="icon">💱</span> Cotización de Monedas</h3>
-        <div id="currency-status-badge" class="currency-status manual">⚡ Manual</div>
-      </div>
-      <div class="card-body">
-        <div class="grid-2">
-          <div>
-            <div class="form-group">
-              <label>Moneda a configurar</label>
-              <select id="currency-selector">
-                <option value="USD">USD – Dólar</option>
-                <option value="EUR">EUR – Euro</option>
-                <option value="BRL">BRL – Real Brasileño</option>
-                <option value="UYU">UYU – Peso Uruguayo</option>
-                <option value="CLP">CLP – Peso Chileno</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Cotización manual (ARS por 1 unidad)</label>
-              <div class="inline-flex">
-                <input type="number" id="currency-manual-rate" placeholder="Ej: 1050" min="0" />
-                <button class="btn btn-primary btn-sm" onclick="saveManualRate()">Guardar</button>
-              </div>
-            </div>
-          </div>
-          <div>
-            <div class="form-group">
-              <!-- URL de API precargada con el endpoint por defecto -->
-              <label>URL de API de cotización</label>
-              <input type="text" id="api-url"
-                placeholder="https://api.exchangerate-api.com/v4/latest/ARS"
-                value="https://api.exchangerate-api.com/v4/latest/ARS" />
-            </div>
-            <div class="form-group mt-1">
-              <button class="btn btn-ghost btn-sm" onclick="fetchRateFromAPI()">🌐 Consultar por API</button>
-              <p class="text-muted mt-1" id="api-status-msg">—</p>
-            </div>
-          </div>
-        </div>
-        <div class="currency-rate-grid" id="currency-rate-grid"></div>
-      </div>
-    </div>
-
     <!-- CIERRE REAL DE INVERSIÓN -->
     <div class="card">
       <div class="card-header">
-        <h3><span class="icon">📈</span> Cierre Real de Inversión del Mes</h3>
+        <h3><span class="icon">📈</span> Inversión del mes</h3>
       </div>
       <div class="card-body">
         <div class="grid-3">
@@ -1182,24 +1210,6 @@
             <label>Rendimiento estimado %</label>
             <input type="number" id="inv-yield" placeholder="Ej: 6.5" step="0.1" min="0" />
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TEMPLATES -->
-    <div class="card">
-      <div class="card-header">
-        <h3><span class="icon">📋</span> Templates de Gastos</h3>
-      </div>
-      <div class="card-body">
-        <div class="inline-flex">
-          <input type="text" id="template-name" placeholder="Nombre del template..." style="flex:1;max-width:240px;" />
-          <button class="btn btn-primary btn-sm" onclick="saveTemplate()">💾 Guardar template</button>
-          <select id="template-selector" style="flex:1;max-width:220px;">
-            <option value="">— Seleccionar template —</option>
-          </select>
-          <button class="btn btn-success btn-sm" onclick="applyTemplate()">▶ Aplicar</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteTemplate()">🗑️ Borrar</button>
         </div>
       </div>
     </div>
@@ -1231,8 +1241,6 @@
         <h3><span class="icon">📊</span> Resumen del Mes</h3>
       </div>
       <div class="card-body">
-        <div class="grid-4" id="summary-stats"></div>
-        <hr class="separator" />
         <h4 style="font-size:0.88rem;color:var(--neutral-600);margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.4px;">Resumen por categoría</h4>
         <div class="cat-summary-grid" id="summary-categories"></div>
         <hr class="separator" />
@@ -1243,45 +1251,25 @@
     <!-- SUGERENCIAS AUTOMÁTICAS -->
     <div class="card">
       <div class="card-header">
-        <h3><span class="icon">💡</span> Sugerencias Automáticas</h3>
+        <h3><span class="icon">💡</span> Alertas y próximos pasos</h3>
       </div>
       <div class="card-body">
         <div class="suggestion-list" id="suggestions-list"></div>
       </div>
     </div>
 
-    <!-- COMPARATIVA MENSUAL -->
-    <div class="card">
-      <div class="card-header">
-        <h3><span class="icon">🔍</span> Comparativa Mensual</h3>
-      </div>
-      <div class="card-body">
-        <div class="grid-2">
-          <div class="form-group">
-            <label>Mes A</label>
-            <select id="compare-month-a"></select>
-          </div>
-          <div class="form-group">
-            <label>Mes B</label>
-            <select id="compare-month-b"></select>
-          </div>
-        </div>
-        <button class="btn btn-primary btn-sm" onclick="runComparison()">🔍 Comparar</button>
-        <div id="comparison-result" class="mt-2"></div>
-      </div>
-    </div>
-
   </div><!-- /view-carga -->
 
   <!-- =============================================
-       VISTA: DASHBOARDS
+       VISTA: HISTORIAL
   ============================================= -->
   <div id="view-dashboard" class="view">
 
     <div class="dash-tabs">
-      <button class="dash-tab active" onclick="switchDashTab('general',this)">📈 General</button>
-      <button class="dash-tab" onclick="switchDashTab('gastos',this)">🧾 Gastos</button>
-      <button class="dash-tab" onclick="switchDashTab('inversion',this)">💎 Inversión</button>
+      <button class="dash-tab active" onclick="switchDashTab('general',this)">Resumen</button>
+      <button class="dash-tab" onclick="switchDashTab('gastos',this)">Gastos</button>
+      <button class="dash-tab" onclick="switchDashTab('inversion',this)">Inversión</button>
+      <button class="dash-tab" onclick="switchDashTab('comparar',this)">Comparar</button>
     </div>
 
     <!-- DASH GENERAL -->
@@ -1334,7 +1322,135 @@
       </div>
     </div>
 
+    <!-- DASH COMPARAR -->
+    <div id="dash-comparar" class="dash-panel">
+      <div class="card">
+        <div class="card-header">
+          <h3><span class="icon">🔍</span> Comparativa mensual</h3>
+        </div>
+        <div class="card-body">
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Mes A</label>
+              <select id="compare-month-a"></select>
+            </div>
+            <div class="form-group">
+              <label>Mes B</label>
+              <select id="compare-month-b"></select>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="runComparison()">Comparar</button>
+          <div id="comparison-result" class="mt-2"></div>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /view-dashboard -->
+
+  <!-- =============================================
+       VISTA: AJUSTES
+  ============================================= -->
+  <div id="view-ajustes" class="view">
+
+    <details class="settings-section" open>
+      <summary>Espacio compartido</summary>
+      <div class="card-body grid-2">
+        <div>
+          <div class="form-group">
+            <label>Usuario logueado</label>
+            <div id="collab-current-user" class="text-muted">-</div>
+          </div>
+          <div class="form-group">
+            <label>Espacio activo</label>
+            <div id="collab-workspace-meta" class="text-muted">-</div>
+          </div>
+          <button class="btn btn-primary btn-sm" id="btn-generate-invite" onclick="generateInviteCode()">Generar invitación</button>
+          <div class="form-group" style="margin-top:0.5rem;">
+            <label for="collab-invite-code">Código para compartir</label>
+            <textarea id="collab-invite-code" rows="2" readonly placeholder="Generá un código y compartilo con quien quieras invitar"></textarea>
+          </div>
+        </div>
+        <div>
+          <div class="form-group">
+            <label for="collab-join-code">Unirme con invitación</label>
+            <textarea id="collab-join-code" rows="4" placeholder="Pegá el código de invitación"></textarea>
+          </div>
+          <button class="btn btn-success btn-sm" onclick="joinWorkspaceByInvite()">Unirme al espacio</button>
+        </div>
+      </div>
+    </details>
+
+    <details class="settings-section">
+      <summary>Datos</summary>
+      <div class="card-body">
+        <div class="inline-flex">
+          <button class="btn btn-ghost btn-sm" onclick="exportJSON()">Exportar JSON</button>
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('import-file').click()">Importar JSON</button>
+          <input type="file" id="import-file" accept=".json" style="display:none" onchange="importJSON(event)" />
+        </div>
+      </div>
+    </details>
+
+    <details class="settings-section">
+      <summary>Cotizaciones</summary>
+      <div class="card-body">
+        <div class="inline-flex" style="justify-content:space-between;margin-bottom:0.75rem;">
+          <span class="text-muted">Tasas usadas para gastos en moneda extranjera.</span>
+          <div id="currency-status-badge" class="currency-status manual">⚡ Manual</div>
+        </div>
+        <div class="grid-2">
+          <div>
+            <div class="form-group">
+              <label>Moneda a configurar</label>
+              <select id="currency-selector">
+                <option value="USD">USD – Dólar</option>
+                <option value="EUR">EUR – Euro</option>
+                <option value="BRL">BRL – Real Brasileño</option>
+                <option value="UYU">UYU – Peso Uruguayo</option>
+                <option value="CLP">CLP – Peso Chileno</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Cotización manual (ARS por 1 unidad)</label>
+              <div class="inline-flex">
+                <input type="number" id="currency-manual-rate" placeholder="Ej: 1050" min="0" />
+                <button class="btn btn-primary btn-sm" onclick="saveManualRate()">Guardar</button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="form-group">
+              <label>URL de API de cotización</label>
+              <input type="text" id="api-url"
+                placeholder="https://api.exchangerate-api.com/v4/latest/ARS"
+                value="https://api.exchangerate-api.com/v4/latest/ARS" />
+            </div>
+            <div class="form-group mt-1">
+              <button class="btn btn-ghost btn-sm" onclick="fetchRateFromAPI()">Consultar por API</button>
+              <p class="text-muted mt-1" id="api-status-msg">—</p>
+            </div>
+          </div>
+        </div>
+        <div class="currency-rate-grid" id="currency-rate-grid"></div>
+      </div>
+    </details>
+
+    <details class="settings-section">
+      <summary>Plantillas</summary>
+      <div class="card-body">
+        <div class="inline-flex">
+          <input type="text" id="template-name" placeholder="Nombre de la plantilla..." style="flex:1;max-width:240px;" />
+          <button class="btn btn-primary btn-sm" onclick="saveTemplate()">Guardar plantilla</button>
+          <select id="template-selector" style="flex:1;max-width:220px;">
+            <option value="">— Seleccionar plantilla —</option>
+          </select>
+          <button class="btn btn-success btn-sm" onclick="applyTemplate()">Aplicar</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteTemplate()">Borrar</button>
+        </div>
+      </div>
+    </details>
+
+  </div><!-- /view-ajustes -->
 
 </div><!-- /app-content -->
 

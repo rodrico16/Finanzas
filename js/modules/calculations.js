@@ -35,6 +35,7 @@ function recalculate() {
   renderCategorySummary(catData, totalExpenses);
   renderProfileDisplay(invProfile, disponible);
   renderSuggestions(totalIncome, totalExpenses, disponible, invReal, invGoal, savingsRate, catData, emergencyPct, emergencyCurrent, emergencyTarget, invProfile);
+  updateMonthWorkbench(totalIncome, totalExpenses, invReal, disponible);
 }
 
 function renderSummaryStats(totalIncome, totalExpenses, disponible, invReal, invGoal, savingsRate, emergencyPct) {
@@ -176,12 +177,44 @@ function renderSuggestions(totalIncome, totalExpenses, disponible, invReal, invG
     el.innerHTML = '<div class="suggestion-item info"><span class="s-icon">ℹ️</span><span>Cargá ingresos y gastos para obtener sugerencias automáticas.</span></div>';
     return;
   }
-  el.innerHTML = suggestions.map(s =>
+  el.innerHTML = suggestions.slice(0, 3).map(s =>
     `<div class="suggestion-item ${s.type}"><span class="s-icon">${s.icon}</span><span>${s.text}</span></div>`
   ).join('');
+}
+
+function updateMonthWorkbench(totalIncome, totalExpenses, invReal, disponible) {
+  const activeMonth = document.getElementById('active-month-context');
+  if (activeMonth) activeMonth.textContent = state.currentMonth || '-';
+  const activeWorkspace = document.getElementById('active-workspace-context');
+  const workspaceSelector = document.getElementById('workspace-selector');
+  if (activeWorkspace) {
+    activeWorkspace.textContent = workspaceSelector?.selectedOptions?.[0]?.textContent?.trim() || 'Local';
+  }
+
+  const statusEl = document.getElementById('month-status-context');
+  if (statusEl) {
+    const saved = Boolean(state.currentMonth && state.months[state.currentMonth]);
+    const incomplete = totalIncome <= 0 || totalExpenses <= 0 || invReal <= 0;
+    statusEl.textContent = saved ? (incomplete ? 'Guardado con datos incompletos' : 'Guardado') : (incomplete ? 'Nuevo' : 'Sin guardar');
+  }
+
+  setChecklistState('check-income', totalIncome > 0, totalIncome > 0 ? 'Ingresos cargados' : 'Pendiente de carga');
+  setChecklistState('check-expenses', totalExpenses > 0, totalExpenses > 0 ? 'Gastos revisados' : 'Pendiente de revisión');
+  setChecklistState('check-investment', invReal > 0, invReal > 0 ? 'Inversión cargada' : 'Pendiente de carga');
+  setChecklistState('check-alerts', true, disponible >= 0 ? 'Alertas revisadas' : 'Revisar saldo negativo');
+}
+
+function setChecklistState(id, done, text) {
+  const item = document.getElementById(id);
+  if (!item) return;
+  item.classList.toggle('done', done);
+  const dot = item.querySelector('.check-dot');
+  const label = item.querySelector('span:last-child');
+  const steps = { 'check-income': '1', 'check-expenses': '2', 'check-investment': '3', 'check-alerts': '4' };
+  if (dot) dot.textContent = done ? '✓' : (steps[id] || '');
+  if (label) label.textContent = text;
 }
 
 function normKey(str) {
   return (str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
 }
-
