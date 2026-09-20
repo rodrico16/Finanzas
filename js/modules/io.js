@@ -22,6 +22,10 @@ function isValidMoney(value) {
   return typeof value === 'number' || (typeof value === 'string' && value.trim() !== '' && Number.isFinite(Number(value)));
 }
 
+function isSafeIdentifier(value) {
+  return typeof value === 'string' && /^[A-Za-z0-9_-]+$/.test(value);
+}
+
 function validateImportedState(candidate) {
   if (!isPlainObject(candidate) || !isPlainObject(candidate.months)) return false;
   if (candidate.names !== undefined && !isPlainObject(candidate.names)) return false;
@@ -32,12 +36,12 @@ function validateImportedState(candidate) {
     if (data.categories !== undefined && !Array.isArray(data.categories)) return false;
     return (data.categories || []).every(category =>
       isPlainObject(category) &&
-      typeof category.id === 'string' &&
+      isSafeIdentifier(category.id) &&
       typeof category.name === 'string' &&
       Array.isArray(category.items) &&
       category.items.every(item =>
         isPlainObject(item) &&
-        typeof item.id === 'string' &&
+        isSafeIdentifier(item.id) &&
         typeof item.name === 'string' &&
         typeof item.currency === 'string' &&
         isValidMoney(item.amount)
@@ -65,14 +69,14 @@ function importJSON(event) {
   if (!file) return;
   const reader = new FileReader();
 
-  reader.onload = function(e) {
+  reader.onload = async function(e) {
     try {
       const imported = JSON.parse(e.target.result);
       if (!validateImportedState(imported)) throw new Error('Formato inválido');
 
       const previous = state;
       state = normalizeImportedState(imported);
-      if (!saveState()) {
+      if (!await saveState()) {
         state = previous;
         return;
       }

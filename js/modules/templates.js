@@ -1,11 +1,12 @@
 /* =================================================
    TEMPLATES
 ================================================= */
-function saveTemplate() {
+async function saveTemplate() {
   const name = document.getElementById('template-name').value.trim();
   if (!name) { toast('Escribí un nombre para el template', 'error'); return; }
   state.templates[name] = getCategoriesData();
-  saveState();
+  const saved = await saveState();
+  if (!saved) return;
   refreshTemplateSelector();
   document.getElementById('template-name').value = '';
   toast(`Template "${name}" guardado`, 'success');
@@ -21,13 +22,14 @@ function applyTemplate() {
   toast(`Template "${name}" aplicado`, 'success');
 }
 
-function deleteTemplate() {
+async function deleteTemplate() {
   const sel = document.getElementById('template-selector');
   const name = sel.value;
   if (!name) { toast('Seleccioná un template', 'error'); return; }
   if (!confirm(`¿Eliminar el template "${name}"?`)) return;
   delete state.templates[name];
-  saveState();
+  const saved = await saveState();
+  if (!saved) return;
   refreshTemplateSelector();
   toast(`Template "${name}" eliminado`, 'info');
 }
