@@ -1,13 +1,19 @@
 /* =================================================
    COTIZACIONES
 ================================================= */
-function saveManualRate() {
+async function saveManualRate() {
   const cur = document.getElementById('currency-selector').value;
   const rate = parseFloat(document.getElementById('currency-manual-rate').value);
   if (!cur || isNaN(rate) || rate <= 0) { toast('Ingresá una cotización válida', 'error'); return; }
+  const previousRate = state.currencies[cur];
+  const previousSource = state.currencySources[cur];
   state.currencies[cur] = rate;
   state.currencySources[cur] = 'manual';
-  saveState();
+  if (!await saveState()) {
+    state.currencies[cur] = previousRate;
+    state.currencySources[cur] = previousSource;
+    return;
+  }
   renderCurrencyRateGrid();
   updateCategoryTotals();
   recalculate();
@@ -16,8 +22,12 @@ function saveManualRate() {
 
 async function fetchRateFromAPI() {
   const targetUrl = (document.getElementById('api-url').value.trim()) || DEFAULT_API_URL;
+  const previousApiUrl = state.apiUrl;
   state.apiUrl = targetUrl;
-  saveState();
+  if (!await saveState()) {
+    state.apiUrl = previousApiUrl;
+    return;
+  }
 
   const statusMsg = document.getElementById('api-status-msg');
   const badge    = document.getElementById('currency-status-badge');
@@ -105,7 +115,7 @@ async function fetchRateFromAPI() {
     }
 
     if (found) {
-      saveState();
+      if (!await saveState()) return;
       renderCurrencyRateGrid();
       updateCategoryTotals();
       recalculate();

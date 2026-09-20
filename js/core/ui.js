@@ -161,9 +161,27 @@ document.addEventListener('DOMContentLoaded', function() {
       setVal('income-p2', '');
       setVal('income-other', '');
       setVal('inv-goal', '');
+      setVal('meta-name', '');
+      setVal('emergency-months', 6);
+      setVal('emergency-current', '');
+      setVal('inv-profile', 'moderado');
       setVal('inv-real', '');
       setVal('inv-type', '');
       setVal('inv-yield', '');
+
+      const categories = document.getElementById('categories-container');
+      categories.innerHTML = '';
+      categoryOpenState = {};
+      DEFAULT_CATEGORIES.forEach(cat => {
+        const catCopy = {
+          id: cat.id,
+          name: cat.name,
+          open: true,
+          items: cat.items.map(item => ({ ...item, id: uid(), amount: 0 }))
+        };
+        categoryOpenState[catCopy.id] = true;
+        buildCategoryBlock(catCopy);
+      });
     }
     recalculate();
   });

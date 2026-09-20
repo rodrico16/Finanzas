@@ -65,14 +65,14 @@ function importJSON(event) {
   if (!file) return;
   const reader = new FileReader();
 
-  reader.onload = function(e) {
+  reader.onload = async function(e) {
     try {
       const imported = JSON.parse(e.target.result);
       if (!validateImportedState(imported)) throw new Error('Formato inválido');
 
       const previous = state;
       state = normalizeImportedState(imported);
-      if (!saveState()) {
+      if (!await saveState()) {
         state = previous;
         return;
       }
