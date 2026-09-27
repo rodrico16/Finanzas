@@ -2,8 +2,9 @@
 (function () {
   const h = React.createElement;
   const css = `
-    #react-shell-root{position:sticky;top:0;z-index:110;background:#0d2630;color:#f4fbfa;box-shadow:0 10px 30px #0d263033}#app-header{display:none}.dash-tabs{display:none}
-    .rx-shell{max-width:1280px;margin:auto;padding:16px 20px 14px}.rx-top{display:flex;align-items:center;justify-content:space-between;gap:20px}
+    #react-shell-root{position:relative}#app-header{display:none}.dash-tabs{display:none}
+    .rx-forms{max-width:1280px;margin:14px auto 0;padding:0 20px 24px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.rx-form-card{background:#fff;border:1px solid #dbe9e7;border-radius:14px;padding:16px;color:#173841}.rx-form-card h3{margin:0 0 14px;font-size:1rem}.rx-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.rx-field label{display:block;color:#58716f;font-size:.72rem;margin-bottom:4px}.rx-field input,.rx-field select{box-sizing:border-box;width:100%;border:1px solid #c9dcd9;border-radius:7px;padding:8px;background:#fff;color:#173841}.rx-form-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.rx-form-actions button{border:1px solid #bed6d2;background:#edf7f5;color:#173841;border-radius:8px;padding:8px 10px;font-weight:600;cursor:pointer}.rx-form-actions button.primary{background:#247866;color:#fff;border-color:#247866}.rx-form-wide{grid-column:1/-1}.rx-form-note{color:#718886;font-size:.76rem;margin:8px 0 0}@media(max-width:800px){.rx-forms{grid-template-columns:1fr;padding:0 12px 18px}.rx-form-wide{grid-column:auto}}@media(max-width:480px){.rx-form-grid{grid-template-columns:1fr}}
+    .rx-shell{position:sticky;top:0;z-index:110;background:#0d2630;color:#f4fbfa;box-shadow:0 10px 30px #0d263033;max-width:1280px;margin:auto;padding:16px 20px 14px}.rx-top{display:flex;align-items:center;justify-content:space-between;gap:20px}
     .rx-brand{display:flex;align-items:center;gap:11px}.rx-mark{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:#42c7aa;color:#09262c;font-weight:900}.rx-brand strong{display:block;font-size:1rem}.rx-brand small{color:#a8c7c4;font-size:.72rem}
     .rx-nav{display:flex;gap:5px;background:#173841;border-radius:12px;padding:4px}.rx-nav button{border:0;background:transparent;color:#b7d1cf;border-radius:9px;padding:8px 14px;font:600 .82rem inherit;cursor:pointer}.rx-nav button.active,.rx-nav button:hover{background:#42c7aa;color:#09262c}
     .rx-actions{display:flex;align-items:center;gap:8px}.rx-month{font-size:.78rem;color:#b7d1cf}.rx-action{border:1px solid #41616a;background:transparent;color:#e6f4f2;border-radius:9px;padding:8px 11px;cursor:pointer}.rx-action:hover{background:#234c56}
@@ -11,6 +12,7 @@
     .rx-workbench{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;padding:10px 12px;background:#102f38;border:1px solid #285460;border-radius:12px}.rx-workbench label{color:#b7d1cf;font-size:.75rem;display:block}.rx-workbench input{margin-top:3px;background:#f4fbfa;color:#102f38;border:0;border-radius:7px;padding:7px 8px}.rx-workbench-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.rx-workbench-actions button{border:1px solid #41616a;background:transparent;color:#e6f4f2;border-radius:8px;padding:7px 9px;font:600 .76rem inherit;cursor:pointer}.rx-workbench-actions button.primary{background:#42c7aa;color:#09262c;border-color:#42c7aa}.rx-workbench-actions button.danger{color:#ffc7c2;border-color:#80514e}.rx-workbench-actions button:hover{filter:brightness(1.1)}.rx-subnav{display:flex;gap:6px;margin-top:12px;padding:4px;background:#173841;border-radius:10px;width:max-content}.rx-subnav button{border:0;background:transparent;color:#b7d1cf;border-radius:7px;padding:7px 11px;font:600 .76rem inherit;cursor:pointer}.rx-subnav button.active,.rx-subnav button:hover{background:#42c7aa;color:#09262c}
     @media(max-width:800px){.rx-top{flex-wrap:wrap}.rx-nav{order:3;width:100%;justify-content:center}.rx-summary{grid-template-columns:1fr 1fr}.rx-card.hero{grid-column:1/-1}.rx-actions{margin-left:auto}.rx-workbench{align-items:stretch;flex-direction:column}.rx-workbench-actions{justify-content:flex-start}}
     @media(max-width:480px){.rx-shell{padding:12px}.rx-actions .rx-action{display:none}.rx-month{display:none}.rx-nav button{flex:1;padding:8px 7px}}
+    #view-carga>.workbench-hero,#view-carga>.grid-2>.card:has(#income-p1),#view-carga>.grid-2>.card:has(#inv-goal),#view-carga>.card:has(#currency-selector),#view-carga>.card:has(#inv-real),#view-carga>.card:has(#template-name){display:none}
   `;
   const style = document.createElement('style'); style.textContent = css; document.head.appendChild(style);
 
@@ -22,10 +24,33 @@
     const available = income - expenses;
     return { income, expenses, available };
   }
+  const legacyValue = (id) => document.getElementById(id)?.value || '';
+  function syncLegacy(id, value, eventName = 'input') {
+    const field = document.getElementById(id);
+    if (!field) return;
+    field.value = value;
+    field.dispatchEvent(new Event(eventName, { bubbles: true }));
+  }
+  function Field({ label, id, type = 'number', min, step, placeholder, onChange }) {
+    return h('div', { className: 'rx-field' }, h('label', { htmlFor: `rx-${id}` }, label), h('input', { id:`rx-${id}`, type, min, step, placeholder, value: legacyValue(id), onChange: e => { syncLegacy(id, e.target.value); onChange?.(); } }));
+  }
+  function Forms({ refresh }) {
+    const invoke = (name) => { if (typeof window[name] === 'function') window[name](); refresh(); };
+    return h('div',{className:'rx-forms'},
+      h('section',{className:'rx-form-card'},h('h3',null,'💵 Ingresos'),h('div',{className:'rx-form-grid'},
+        h(Field,{label:'Ingreso Persona 1',id:'income-p1',placeholder:'0',onChange:refresh}),h(Field,{label:'Ingreso Persona 2',id:'income-p2',placeholder:'0',onChange:refresh}),h(Field,{label:'Otros ingresos',id:'income-other',placeholder:'0',onChange:refresh})),h('p',{className:'rx-form-note'},`Total: ${money(Number(legacyValue('income-p1'))+Number(legacyValue('income-p2'))+Number(legacyValue('income-other')))}`)),
+      h('section',{className:'rx-form-card'},h('h3',null,'🎯 Objetivos'),h('div',{className:'rx-form-grid'},
+        h(Field,{label:'Inversión mensual mínima',id:'inv-goal',placeholder:'0',onChange:refresh}),h(Field,{label:'Nombre de meta',id:'meta-name',type:'text',placeholder:'Ej: Departamento propio',onChange:refresh}),h(Field,{label:'Meses de emergencia',id:'emergency-months',placeholder:'6',min:1,max:24,onChange:refresh}),h(Field,{label:'Fondo acumulado',id:'emergency-current',placeholder:'0',onChange:refresh}),h('div',{className:'rx-field'},h('label',{htmlFor:'rx-inv-profile'},'Perfil de inversión'),h('select',{id:'rx-inv-profile',value:legacyValue('inv-profile'),onChange:e=>syncLegacy('inv-profile',e.target.value,'change')},h('option',{value:'conservador'},'Conservador'),h('option',{value:'moderado'},'Moderado'),h('option',{value:'agresivo'},'Agresivo'))))),
+      h('section',{className:'rx-form-card'},h('h3',null,'💱 Cotización de monedas'),h('div',{className:'rx-form-grid'},h('div',{className:'rx-field'},h('label',{htmlFor:'rx-currency-selector'},'Moneda'),h('select',{id:'rx-currency-selector',value:legacyValue('currency-selector'),onChange:e=>syncLegacy('currency-selector',e.target.value,'change')},['USD','EUR','BRL','UYU','CLP'].map(v=>h('option',{key:v,value:v},v)))),h(Field,{label:'Cotización manual (ARS)',id:'currency-manual-rate',onChange:refresh})),h('div',{className:'rx-form-actions'},h('button',{className:'primary',onClick:()=>invoke('saveManualRate')},'Guardar cotización'),h('button',{onClick:()=>invoke('fetchRateFromAPI')},'Consultar API'))),
+      h('section',{className:'rx-form-card'},h('h3',null,'📈 Inversión del mes'),h('div',{className:'rx-form-grid'},h(Field,{label:'Monto invertido',id:'inv-real',onChange:refresh}),h(Field,{label:'Tipo de inversión',id:'inv-type',type:'text',placeholder:'Plazo fijo, FCI...',onChange:refresh}),h(Field,{label:'Rendimiento estimado %',id:'inv-yield',step:'0.1',onChange:refresh}))),
+      h('section',{className:'rx-form-card rx-form-wide'},h('h3',null,'📋 Plantillas'),h('div',{className:'rx-form-actions'},h('input',{id:'rx-template-name',placeholder:'Nombre del template...',value:legacyValue('template-name'),onChange:e=>syncLegacy('template-name',e.target.value)}),h('button',{className:'primary',onClick:()=>invoke('saveTemplate')},'Guardar template'),h('select',{value:legacyValue('template-selector'),onChange:e=>syncLegacy('template-selector',e.target.value,'change')},h('option',{value:''},'Seleccionar template')),h('button',{onClick:()=>invoke('applyTemplate')},'Aplicar'),h('button',{onClick:()=>invoke('deleteTemplate')},'Borrar')))
+    );
+  }
   function Shell() {
     const [view, setView] = React.useState('carga');
     const [tick, setTick] = React.useState(0);
     const [dashboardTab, setDashboardTab] = React.useState('general');
+    const [, refresh] = React.useState(0);
     const m = metrics();
     const go = (next) => { setView(next); if (typeof switchView === 'function') switchView(next); };
     const goDashboardTab = (next) => { setDashboardTab(next); const legacyButton = document.querySelector(`.dash-tab[onclick*="'${next}'"]`); if (typeof switchDashTab === 'function') switchDashTab(next, legacyButton); };
@@ -57,7 +82,7 @@
         h('div',{className:'rx-card'},h('span',null,'Ingresos'),h('strong',null,money(m.income))),
         h('div',{className:'rx-card'},h('span',null,'Gastos'),h('strong',null,money(m.expenses))),
         h('div',{className:'rx-card'},h('span',null,'Estado'),h('strong',null,m.available >= 0 ? 'En equilibrio' : 'A revisar'))
-      )
+      ), view === 'carga' && h(Forms,{refresh:()=>refresh(v=>v+1)})
     );
   }
   function mount() { const root = document.getElementById('react-shell-root'); if (root && window.ReactDOM) ReactDOM.createRoot(root).render(h(Shell)); }
