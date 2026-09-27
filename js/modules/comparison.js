@@ -16,7 +16,12 @@ function runComparison() {
   const mA = document.getElementById('compare-month-a').value;
   const mB = document.getElementById('compare-month-b').value;
   const result = document.getElementById('comparison-result');
-  if (!mA || !mB) { result.innerHTML = '<p class="text-muted">Seleccioná dos meses para comparar.</p>'; return; }
+  const monthsCount = Object.keys(state.months).length;
+  if (monthsCount < 2) {
+    result.innerHTML = '<div class="empty-state empty-state-compact"><div class="empty-icon">📊</div><strong>Faltan meses para comparar</strong><p>Guardá 2 meses distintos para ver variaciones de ingresos, gastos e inversión.</p></div>';
+    return;
+  }
+  if (!mA || !mB) { result.innerHTML = '<div class="empty-state empty-state-compact"><div class="empty-icon">🔍</div><strong>Elegí dos meses</strong><p>Seleccioná Mes A y Mes B para comparar sus variaciones.</p></div>'; return; }
   if (mA === mB) { result.innerHTML = '<p class="text-muted">Seleccioná dos meses distintos.</p>'; return; }
   const dA = state.months[mA];
   const dB = state.months[mB];
@@ -120,4 +125,3 @@ function buildCatMap(data) {
   });
   return map;
 }
-

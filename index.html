@@ -230,7 +230,67 @@
     border-radius: 50%;
     background: var(--warning);
   }
+  .month-status.ready::before,
+  .month-status.saved::before {
+    background: var(--success);
+  }
   .month-overview .stat-card { min-height: 92px; }
+  .month-overview-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+  .month-checklist {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.65rem;
+  }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    min-height: 78px;
+    padding: 0.75rem;
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius);
+    background: var(--neutral-50);
+  }
+  .check-item.done {
+    border-color: rgba(22,121,76,0.32);
+    background: var(--success-light);
+  }
+  .check-item.pending {
+    border-color: rgba(161,98,7,0.3);
+    background: #fffaf0;
+  }
+  .check-dot {
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    background: var(--warning-light);
+    color: var(--warning);
+  }
+  .check-item.done .check-dot {
+    background: var(--success);
+    color: white;
+  }
+  .check-copy strong {
+    display: block;
+    color: var(--neutral-800);
+    font-size: 0.86rem;
+  }
+  .check-copy span {
+    display: block;
+    color: var(--neutral-500);
+    font-size: 0.78rem;
+    margin-top: 0.1rem;
+  }
   .secondary-card .card-header h3 { color: var(--neutral-600); }
   .secondary-card { background: var(--neutral-50); }
   .workbench-panel {
@@ -294,6 +354,7 @@
     .grid-4 { grid-template-columns: 1fr 1fr; }
     .grid-3 { grid-template-columns: 1fr 1fr; }
     .workbench-hero { grid-template-columns: 1fr; }
+    .month-checklist { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
   @media (max-width: 600px) {
     .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
@@ -303,6 +364,7 @@
     .main-nav, .header-actions, .persona-names { width: 100%; }
     .main-nav button { flex: 1; }
     .quick-steps { grid-template-columns: 1fr; }
+    .month-checklist { grid-template-columns: 1fr; }
   }
 
   /* =============================================
@@ -860,6 +922,22 @@
     font-size: 0.92rem;
   }
   .empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+  .empty-state strong {
+    display: block;
+    color: var(--neutral-700);
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+  }
+  .empty-state p {
+    margin: 0;
+    color: var(--neutral-500);
+  }
+  .empty-state-compact {
+    padding: 1.25rem 0.75rem;
+  }
+  .empty-state-compact .empty-icon {
+    font-size: 1.8rem;
+  }
   .inline-flex { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
   .text-right { text-align: right; }
   .text-muted { color: var(--neutral-500); font-size: 0.85rem; }
@@ -1057,8 +1135,9 @@
         <h3 id="month-overview-title"><span class="icon">🧭</span> Cómo vas este mes</h3>
         <span class="month-status" id="month-status">Completá los datos principales</span>
       </div>
-      <div class="card-body">
+      <div class="card-body month-overview-body">
         <div class="grid-4" id="summary-stats-top"></div>
+        <div class="month-checklist" id="month-checklist" aria-label="Checklist de cierre mensual"></div>
       </div>
     </section>
 

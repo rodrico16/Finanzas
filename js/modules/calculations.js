@@ -32,6 +32,7 @@ function recalculate() {
   document.getElementById('total-expenses-display').textContent = fmtARS(totalExpenses);
 
   renderSummaryStats(totalIncome, totalExpenses, disponible, invReal, invGoal, savingsRate, emergencyPct);
+  renderMonthChecklist(totalIncome, totalExpenses, invReal, invGoal);
   renderCategorySummary(catData, totalExpenses);
   renderProfileDisplay(invProfile, disponible);
   renderSuggestions(totalIncome, totalExpenses, disponible, invReal, invGoal, savingsRate, catData, emergencyPct, emergencyCurrent, emergencyTarget, invProfile);
@@ -74,9 +75,60 @@ function renderSummaryStats(totalIncome, totalExpenses, disponible, invReal, inv
   if (status) {
     const hasIncome = totalIncome > 0;
     const hasExpenses = totalExpenses > 0;
-    const hasInvestment = invReal > 0 || invGoal > 0;
-    status.textContent = hasIncome && hasExpenses ? 'Listo para revisar' : 'Faltan datos principales';
-    status.style.color = hasIncome && hasExpenses ? 'var(--success)' : 'var(--warning)';
+    const isSaved = isCurrentMonthSaved();
+    const isReady = hasIncome && hasExpenses;
+    status.textContent = isSaved ? 'Cierre guardado' : (hasIncome && hasExpenses ? 'Listo para guardar' : 'Faltan datos principales');
+    status.classList.toggle('saved', isSaved);
+    status.classList.toggle('ready', !isSaved && isReady);
+    status.style.color = isSaved || isReady ? 'var(--success)' : 'var(--warning)';
+  }
+}
+
+function renderMonthChecklist(totalIncome, totalExpenses, invReal, invGoal) {
+  const el = document.getElementById('month-checklist');
+  if (!el) return;
+  const month = state.currentMonth || '';
+  const isSaved = isCurrentMonthSaved();
+  const steps = [
+    {
+      done: totalIncome > 0,
+      title: 'Ingresos cargados',
+      hint: totalIncome > 0 ? fmtARS(totalIncome) : 'Completá ingresos del hogar'
+    },
+    {
+      done: totalExpenses > 0,
+      title: 'Gastos revisados',
+      hint: totalExpenses > 0 ? fmtARS(totalExpenses) : 'Cargá al menos un gasto'
+    },
+    {
+      done: invReal > 0 || invGoal > 0,
+      title: 'Inversión cargada',
+      hint: invGoal > 0 ? `${fmtARS(invReal)} de ${fmtARS(invGoal)}` : 'Definí objetivo o inversión real'
+    },
+    {
+      done: isSaved,
+      title: 'Mes guardado',
+      hint: isSaved ? `${month} disponible en Historial` : 'Guardá el cierre mensual'
+    }
+  ];
+  el.innerHTML = steps.map(step => `
+    <div class="check-item ${step.done ? 'done' : 'pending'}">
+      <span class="check-dot">${step.done ? '✓' : '!'}</span>
+      <span class="check-copy">
+        <strong>${step.title}</strong>
+        <span>${escHtml(step.hint)}</span>
+      </span>
+    </div>
+  `).join('');
+}
+
+function isCurrentMonthSaved() {
+  if (!state.currentMonth || !state.months || !state.months[state.currentMonth]) return false;
+  try {
+    const currentData = getCurrentMonthData();
+    return JSON.stringify(currentData) === JSON.stringify(state.months[state.currentMonth]);
+  } catch (e) {
+    return true;
   }
 }
 
