@@ -8,7 +8,8 @@
     .rx-nav{display:flex;gap:5px;background:#173841;border-radius:12px;padding:4px}.rx-nav button{border:0;background:transparent;color:#b7d1cf;border-radius:9px;padding:8px 14px;font:600 .82rem inherit;cursor:pointer}.rx-nav button.active,.rx-nav button:hover{background:#42c7aa;color:#09262c}
     .rx-actions{display:flex;align-items:center;gap:8px}.rx-month{font-size:.78rem;color:#b7d1cf}.rx-action{border:1px solid #41616a;background:transparent;color:#e6f4f2;border-radius:9px;padding:8px 11px;cursor:pointer}.rx-action:hover{background:#234c56}
     .rx-summary{display:grid;grid-template-columns:1.6fr repeat(3,1fr);gap:10px;margin-top:18px}.rx-card{background:#153a44;border:1px solid #285460;border-radius:14px;padding:13px 15px}.rx-card span{display:block;color:#9fc1bd;font-size:.72rem}.rx-card strong{display:block;margin-top:3px;font-size:1.15rem}.rx-card.hero{background:linear-gradient(135deg,#247866,#164f58)}.rx-card.hero strong{font-size:1.45rem;color:#fff}.rx-card.hero span{color:#c6eeea}
-    @media(max-width:800px){.rx-top{flex-wrap:wrap}.rx-nav{order:3;width:100%;justify-content:center}.rx-summary{grid-template-columns:1fr 1fr}.rx-card.hero{grid-column:1/-1}.rx-actions{margin-left:auto}}
+    .rx-workbench{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;padding:10px 12px;background:#102f38;border:1px solid #285460;border-radius:12px}.rx-workbench label{color:#b7d1cf;font-size:.75rem;display:block}.rx-workbench input{margin-top:3px;background:#f4fbfa;color:#102f38;border:0;border-radius:7px;padding:7px 8px}.rx-workbench-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.rx-workbench-actions button{border:1px solid #41616a;background:transparent;color:#e6f4f2;border-radius:8px;padding:7px 9px;font:600 .76rem inherit;cursor:pointer}.rx-workbench-actions button.primary{background:#42c7aa;color:#09262c;border-color:#42c7aa}.rx-workbench-actions button.danger{color:#ffc7c2;border-color:#80514e}.rx-workbench-actions button:hover{filter:brightness(1.1)}
+    @media(max-width:800px){.rx-top{flex-wrap:wrap}.rx-nav{order:3;width:100%;justify-content:center}.rx-summary{grid-template-columns:1fr 1fr}.rx-card.hero{grid-column:1/-1}.rx-actions{margin-left:auto}.rx-workbench{align-items:stretch;flex-direction:column}.rx-workbench-actions{justify-content:flex-start}}
     @media(max-width:480px){.rx-shell{padding:12px}.rx-actions .rx-action{display:none}.rx-month{display:none}.rx-nav button{flex:1;padding:8px 7px}}
   `;
   const style = document.createElement('style'); style.textContent = css; document.head.appendChild(style);
@@ -26,12 +27,27 @@
     const [tick, setTick] = React.useState(0);
     const m = metrics();
     const go = (next) => { setView(next); if (typeof switchView === 'function') switchView(next); };
+    const month = window.state?.currentMonth || '';
+    const changeMonth = (event) => {
+      const field = document.getElementById('current-month');
+      if (field) { field.value = event.target.value; field.dispatchEvent(new Event('change', { bubbles: true })); }
+    };
+    const invoke = (name) => { if (typeof window[name] === 'function') window[name](); };
     React.useEffect(() => { const timer = setInterval(() => setTick(v => v + 1), 1200); return () => clearInterval(timer); }, []);
     return h('div', { className:'rx-shell' },
       h('div', { className:'rx-top' },
         h('div', { className:'rx-brand' }, h('div',{className:'rx-mark'},'◆'), h('div',null,h('strong',null,'Finanzas Familiares'),h('small',null,'Tu dinero, más claro'))),
         h('nav',{className:'rx-nav'},[['carga','Este mes'],['dashboard','Historial']].map(([id,label]) => h('button',{key:id,className:view===id?'active':'',onClick:()=>go(id)},label))),
         h('div',{className:'rx-actions'},h('span',{className:'rx-month'},window.state?.currentMonth || 'Mes actual'),h('button',{className:'rx-action',onClick:()=>window.exportJSON?.()},'Exportar'))
+      ),
+      h('div',{className:'rx-workbench'},
+        h('div',null,h('label',{htmlFor:'rx-month-picker'},'Mes activo'),h('input',{id:'rx-month-picker',type:'month',value:month,onChange:changeMonth, 'aria-label':'Seleccionar mes activo'})),
+        h('div',{className:'rx-workbench-actions'},
+          h('button',{className:'primary',onClick:()=>invoke('saveMonth')},'Guardar cierre'),
+          h('button',{onClick:()=>invoke('loadMonthData')},'Cargar mes'),
+          h('button',{onClick:()=>document.getElementById('import-file')?.click()},'Importar'),
+          h('button',{className:'danger',onClick:()=>invoke('deleteCurrentMonth')},'Eliminar')
+        )
       ),
       h('div',{className:'rx-summary'},
         h('div',{className:'rx-card hero'},h('span',null,'Disponible este mes'),h('strong',null,money(m.available)),h('span',null,'Ingresos menos gastos registrados')),
