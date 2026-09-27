@@ -9,6 +9,8 @@
 <script src="google-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer onload="window.dispatchEvent(new Event('google-identity-loaded'))"></script>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script>
   // Configurar solo un Client ID público de OAuth mediante el entorno de despliegue.
   // No incluir secretos de Google ni tokens en el código fuente.
@@ -992,6 +994,8 @@
   </div>
 </div>
 
+<div id="react-shell-root"></div>
+
 <!-- =============================================
      HEADER
 ============================================= -->
@@ -1393,6 +1397,7 @@
 <script src="js/modules/io.js"></script>
 <script src="js/modules/auth.js"></script>
 <script src="js/core/ui.js"></script>
+<script src="src/react-app.js"></script>
 <script>
   if ('serviceWorker' in navigator && location.protocol === 'https:') {
     window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
