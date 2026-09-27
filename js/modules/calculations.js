@@ -42,7 +42,7 @@ function renderSummaryStats(totalIncome, totalExpenses, disponible, invReal, inv
   const statsEl = document.getElementById('summary-stats');
   if (!statsEl) return;
   const invExec = invGoal > 0 ? (invReal / invGoal * 100) : (invReal > 0 ? 100 : 0);
-  statsEl.innerHTML = `
+  const statsMarkup = `
     <div class="stat-card primary">
       <div class="stat-label">Ingreso Total</div>
       <div class="stat-value">${fmtARS(totalIncome)}</div>
@@ -67,6 +67,17 @@ function renderSummaryStats(totalIncome, totalExpenses, disponible, invReal, inv
       </div>
     </div>
   `;
+  statsEl.innerHTML = statsMarkup;
+  const topStats = document.getElementById('summary-stats-top');
+  if (topStats) topStats.innerHTML = statsMarkup;
+  const status = document.getElementById('month-status');
+  if (status) {
+    const hasIncome = totalIncome > 0;
+    const hasExpenses = totalExpenses > 0;
+    const hasInvestment = invReal > 0 || invGoal > 0;
+    status.textContent = hasIncome && hasExpenses ? 'Listo para revisar' : 'Faltan datos principales';
+    status.style.color = hasIncome && hasExpenses ? 'var(--success)' : 'var(--warning)';
+  }
 }
 
 function renderCategorySummary(catData, totalExpenses) {
@@ -184,4 +195,3 @@ function renderSuggestions(totalIncome, totalExpenses, disponible, invReal, invG
 function normKey(str) {
   return (str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
 }
-

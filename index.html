@@ -207,6 +207,30 @@
     align-items: stretch;
     margin-bottom: 1rem;
   }
+  .month-overview {
+    margin-bottom: 1rem;
+  }
+  .month-overview .card-header {
+    background: var(--primary-light);
+  }
+  .month-overview .card-header h3 { color: var(--primary-dark); }
+  .month-status {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    color: var(--neutral-600);
+    font-size: .82rem;
+  }
+  .month-status::before {
+    content: '';
+    width: .55rem;
+    height: .55rem;
+    border-radius: 50%;
+    background: var(--warning);
+  }
+  .month-overview .stat-card { min-height: 92px; }
+  .secondary-card .card-header h3 { color: var(--neutral-600); }
+  .secondary-card { background: var(--neutral-50); }
   .workbench-panel {
     background: var(--white);
     border: 1px solid var(--neutral-200);
@@ -983,8 +1007,8 @@
       </div>
     </div>
     <nav class="main-nav" role="tablist" aria-label="Secciones principales">
-      <button id="tab-carga" class="active" onclick="switchView('carga')">📋 Carga Mensual</button>
-      <button id="tab-dash" onclick="switchView('dashboard')">📊 Dashboards</button>
+      <button id="tab-carga" class="active" onclick="switchView('carga')">📋 Mes</button>
+      <button id="tab-dash" onclick="switchView('dashboard')">📊 Historial</button>
     </nav>
     <div class="header-actions">
       <select id="workspace-selector" style="max-width:230px;padding:0.38rem 0.5rem;border-radius:6px;border:1px solid var(--neutral-300);">
@@ -1007,32 +1031,37 @@
     <div class="workbench-hero">
       <section class="workbench-panel">
         <div class="section-kicker">Planificación mensual</div>
-        <h2>Ordená ingresos, gastos e inversión de este mes.</h2>
-        <p>Usá este flujo para cargar el mes, revisar el disponible y guardar una foto histórica que después puedas comparar en dashboards.</p>
-        <div class="quick-steps" aria-label="Pasos principales">
-          <div class="quick-step"><strong>1. Elegí mes</strong><span>Trabajá siempre sobre un período claro.</span></div>
-          <div class="quick-step"><strong>2. Cargá datos</strong><span>Ingresos, objetivos, gastos e inversión real.</span></div>
-          <div class="quick-step"><strong>3. Guardá y revisá</strong><span>Generá historial para comparar y decidir.</span></div>
-        </div>
+        <h2>Tu mes, en un solo lugar.</h2>
+        <p>Cargá ingresos y gastos, revisá cuánto queda disponible y guardá el cierre cuando esté listo.</p>
       </section>
       <section class="workbench-panel month-panel" aria-label="Mes de trabajo">
         <div>
-          <label for="current-month">Mes de trabajo</label>
+          <label for="current-month">Mes activo</label>
           <input type="month" id="current-month" style="width:100%;margin-top:0.35rem;" />
-          <p style="font-size:0.84rem;color:rgba(255,255,255,0.72);margin-top:0.5rem;">El botón Guardar mes conserva los datos como historial. Los cambios de campos también intentan guardarse localmente.</p>
+          <p style="font-size:0.84rem;color:rgba(255,255,255,0.72);margin-top:0.5rem;">Los cambios se guardan localmente. Guardá el cierre para verlo en Historial.</p>
         </div>
         <div class="month-actions">
-          <button class="btn btn-primary btn-sm" onclick="saveMonth()">Guardar mes</button>
+          <button class="btn btn-primary btn-sm" onclick="saveMonth()">Guardar cierre</button>
           <button class="btn btn-ghost btn-sm" onclick="loadMonthData()">Cargar mes</button>
           <button class="btn btn-danger btn-sm" onclick="deleteCurrentMonth()">Eliminar</button>
         </div>
       </section>
     </div>
 
+    <section class="card month-overview" aria-labelledby="month-overview-title">
+      <div class="card-header">
+        <h3 id="month-overview-title"><span class="icon">🧭</span> Cómo vas este mes</h3>
+        <span class="month-status" id="month-status">Completá los datos principales</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-4" id="summary-stats-top"></div>
+      </div>
+    </section>
+
     <!-- GRID SUPERIOR: Ingresos + Objetivos -->
     <div class="card">
       <div class="card-header">
-        <h3><span class="icon">🤝</span> Colaboración</h3>
+        <h3><span class="icon">🤝</span> Espacio compartido</h3>
       </div>
       <div class="card-body grid-2">
         <div>
@@ -1179,7 +1208,7 @@
     <!-- CIERRE REAL DE INVERSIÓN -->
     <div class="card">
       <div class="card-header">
-        <h3><span class="icon">📈</span> Cierre Real de Inversión del Mes</h3>
+        <h3><span class="icon">📈</span> Inversión del mes</h3>
       </div>
       <div class="card-body">
         <div class="grid-3">
@@ -1203,7 +1232,7 @@
     <!-- TEMPLATES -->
     <div class="card">
       <div class="card-header">
-        <h3><span class="icon">📋</span> Templates de Gastos</h3>
+        <h3><span class="icon">📋</span> Plantillas</h3>
       </div>
       <div class="card-body">
         <div class="inline-flex">
@@ -1221,7 +1250,7 @@
     <!-- GASTOS POR CATEGORÍA -->
     <div class="card">
       <div class="card-header">
-        <h3><span class="icon">🧾</span> Gastos por Categoría</h3>
+        <h3><span class="icon">🧾</span> Gastos</h3>
         <div class="inline-flex">
           <button class="btn btn-ghost btn-sm" onclick="expandAllCategories()">⊞ Expandir todo</button>
           <button class="btn btn-ghost btn-sm" onclick="collapseAllCategories()">⊟ Colapsar todo</button>
@@ -1242,7 +1271,7 @@
     <!-- RESUMEN DEL MES -->
     <div class="card">
       <div class="card-header">
-        <h3><span class="icon">📊</span> Resumen del Mes</h3>
+        <h3><span class="icon">📊</span> Detalle del mes</h3>
       </div>
       <div class="card-body">
         <div class="grid-4" id="summary-stats"></div>
@@ -1257,7 +1286,7 @@
     <!-- SUGERENCIAS AUTOMÁTICAS -->
     <div class="card">
       <div class="card-header">
-        <h3><span class="icon">💡</span> Sugerencias Automáticas</h3>
+        <h3><span class="icon">💡</span> Alertas y próximos pasos</h3>
       </div>
       <div class="card-body">
         <div class="suggestion-list" id="suggestions-list"></div>
