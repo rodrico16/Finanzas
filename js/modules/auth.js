@@ -317,8 +317,8 @@ function renderAuthHeader(user) {
   const help = document.getElementById('auth-help-text');
 
   if (!user) {
-    title.textContent = '🔐 Ingresá con Google';
-    subtitle.textContent = 'Para usar la app necesitás iniciar sesión con Google.';
+    title.textContent = '🔐 Ingresá a tu panel';
+    subtitle.textContent = 'Elegí Google o ingresá con tu email en este dispositivo.';
     if (GOOGLE_CLIENT_ID === 'REEMPLAZAR_CON_GOOGLE_CLIENT_ID') {
       error.textContent = 'Falta configurar GOOGLE_CLIENT_ID en index.html.';
     } else {
@@ -383,6 +383,24 @@ function onGoogleCredential(response) {
   renderAuthHeader(currentAuthUser);
   unlockAndInitApp();
   requestGoogleDriveAccess();
+}
+
+function onEmailLogin(event) {
+  event.preventDefault();
+  const input = document.getElementById('email-login-input');
+  const email = (input?.value || '').trim().toLowerCase();
+  if (!email || !input?.checkValidity()) {
+    document.getElementById('auth-error').textContent = 'Ingresá un email válido.';
+    return;
+  }
+  currentAuthUser = { sub: `email:${email}`, email, name: email };
+  setStoredUser(currentAuthUser);
+  sessionStorage.setItem(AUTH_SESSION_KEY, 'ok');
+  const personalWorkspace = getOrCreatePersonalWorkspace(currentAuthUser);
+  activeWorkspaceId = sessionStorage.getItem('finanzas_active_workspace_v1') || personalWorkspace;
+  sessionStorage.setItem('finanzas_active_workspace_v1', activeWorkspaceId);
+  renderAuthHeader(currentAuthUser);
+  unlockAndInitApp();
 }
 
 function getActiveDataStorageKey() {
@@ -537,7 +555,7 @@ function logoutGoogle() {
   activeWorkspaceId = null;
   googleAccessToken = '';
   lockApp();
-  toast('Sesión cerrada. Volvé a iniciar con Google.', 'info');
+  toast('Sesión cerrada. Volvé a iniciar cuando quieras.', 'info');
 }
 
 async function unlockAndInitApp() {
@@ -557,6 +575,8 @@ async function unlockAndInitApp() {
 }
 
 function setupAuthScreen() {
+  const emailForm = document.getElementById('email-login-form');
+  if (emailForm) emailForm.addEventListener('submit', onEmailLogin);
   const stored = getStoredUser();
   if (stored?.sub && stored?.email) {
     currentAuthUser = stored;
