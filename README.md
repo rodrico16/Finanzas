@@ -15,6 +15,10 @@ Netlify ejecutara automaticamente `npm run build`, publicara la raiz del reposit
 
 La primera entrega guarda los datos localmente en el navegador y funciona como modo de prueba local. No debe interpretarse como autenticacion real ni como colaboracion entre cuentas: OAuth, Google Sheets, invitaciones verificables y sincronizacion quedan fuera de esta publicacion y documentadas en `docs/PRODUCT_BACKLOG_PWA.md`.
 
+## API moderna (migración incremental)
+
+El directorio `backend/` contiene una API Express + TypeScript preparada para PostgreSQL/Prisma. La app estática continúa funcionando sin cambios. Para levantar la API: copia `backend/.env.example` a `backend/.env`, instala con `npm run backend:install`, genera Prisma con `npm --prefix backend run prisma:generate` y ejecuta `npm --prefix backend run dev`. Los endpoints iniciales son `POST /api/auth/google`, `GET/PUT /api/finances` y `POST /api/migrate`.
+
 ## Autenticacion con Google
 
 La app ya integra Google Identity Services para iniciar sesion con Google y bloquear el acceso hasta que el usuario se autentique.
@@ -29,6 +33,10 @@ node scripts/build.cjs
 ```
 
 El logout limpia la sesión local, desactiva la selección automática y solicita a Google revocar la sesión del usuario. Esto no reemplaza la validación server-side del token: la app actual es estática y todavía no tiene backend.
+
+### Acceso alternativo por email
+
+La pantalla también permite ingresar con un email sin usar Google. En esta versión estática el email no se verifica ni se envía a un servidor: funciona como identificador local del navegador y permite seguir usando la app en Netlify Free cuando el origen OAuth no está autorizado. No debe considerarse autenticación ni sincronización entre dispositivos. Para un login real por email habrá que desplegar una función serverless, emitir enlaces de acceso de un solo uso y configurar un proveedor de correo.
 
 ## Desarrollo local
 

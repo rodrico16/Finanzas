@@ -930,6 +930,12 @@
     border-radius: var(--radius-sm);
     font-size: 0.8rem;
   }
+  .auth-divider { margin: .55rem 0; color: var(--neutral-500); font-size: .85rem; text-align: center; }
+  .email-login-form { text-align: left; margin: .5rem auto; max-width: 320px; }
+  .email-login-form label { display: block; font-size: .85rem; margin-bottom: .25rem; }
+  .email-login-row { display: flex; gap: .4rem; }
+  .email-login-row input { min-width: 0; flex: 1; padding: .55rem; border: 1px solid var(--neutral-300); border-radius: 6px; }
+  .email-login-row button { padding: .55rem .7rem; border: 0; border-radius: 6px; cursor: pointer; }
   .auth-error {
     color: var(--danger);
     font-size: 0.82rem;
@@ -947,9 +953,17 @@
     <h2 id="auth-title">Acceso a tu panel financiero</h2>
     <p id="auth-subtitle">Iniciá sesión con Google para abrir este panel en tu navegador.</p>
     <div id="google-login-btn" style="display:flex;justify-content:center;margin:0.6rem 0 0.5rem;"></div>
+    <div class="auth-divider">o ingresá con tu email en este dispositivo</div>
+    <form id="email-login-form" class="email-login-form">
+      <label for="email-login-input">Email</label>
+      <div class="email-login-row">
+        <input id="email-login-input" type="email" autocomplete="email" required placeholder="tu@email.com" />
+        <button type="submit">Ingresar</button>
+      </div>
+    </form>
     <p class="auth-error" id="auth-error"></p>
     <div class="auth-help" id="auth-help-text">
-      Esta app guarda datos financieros en este navegador y, si conectás Drive, en tu carpeta privada de la app. No compartas exportaciones JSON con información sensible.
+      El acceso por email es local: no envía ni verifica correos y solo sirve para este navegador. Para sincronizar en la nube usá Google cuando el dominio esté autorizado.
     </div>
   </div>
 </div>
