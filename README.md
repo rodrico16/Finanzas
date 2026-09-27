@@ -15,6 +15,10 @@ Netlify ejecutara automaticamente `npm run build`, publicara la raiz del reposit
 
 La primera entrega guarda los datos localmente en el navegador y funciona como modo de prueba local. No debe interpretarse como autenticacion real ni como colaboracion entre cuentas: OAuth, Google Sheets, invitaciones verificables y sincronizacion quedan fuera de esta publicacion y documentadas en `docs/PRODUCT_BACKLOG_PWA.md`.
 
+## API moderna (migración incremental)
+
+El directorio `backend/` contiene una API Express + TypeScript preparada para PostgreSQL/Prisma. La app estática continúa funcionando sin cambios. Para levantar la API: copia `backend/.env.example` a `backend/.env`, instala con `npm run backend:install`, genera Prisma con `npm --prefix backend run prisma:generate` y ejecuta `npm --prefix backend run dev`. Los endpoints iniciales son `POST /api/auth/google`, `GET/PUT /api/finances` y `POST /api/migrate`.
+
 ## Autenticacion con Google
 
 La app ya integra Google Identity Services para iniciar sesion con Google y bloquear el acceso hasta que el usuario se autentique.
