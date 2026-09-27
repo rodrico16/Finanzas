@@ -403,6 +403,8 @@ function onEmailLogin(event) {
   unlockAndInitApp();
 }
 
+window.onEmailLogin = onEmailLogin;
+
 function getActiveDataStorageKey() {
   if (!activeWorkspaceId) return 'finanzasFamiliares_v6::public';
   return `finanzasFamiliares_v6::${activeWorkspaceId}`;
@@ -595,3 +597,7 @@ function setupAuthScreen() {
 }
 
 window.addEventListener('google-identity-loaded', renderGoogleButton);
+window.addEventListener('react-auth-mounted', () => {
+  renderAuthHeader(currentAuthUser);
+  if (!currentAuthUser) renderGoogleButton();
+});
