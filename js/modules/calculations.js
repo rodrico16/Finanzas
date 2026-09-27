@@ -126,10 +126,20 @@ function isCurrentMonthSaved() {
   if (!state.currentMonth || !state.months || !state.months[state.currentMonth]) return false;
   try {
     const currentData = getCurrentMonthData();
-    return JSON.stringify(currentData) === JSON.stringify(state.months[state.currentMonth]);
+    return stableStringify(currentData) === stableStringify(state.months[state.currentMonth]);
   } catch (e) {
-    return true;
+    return false;
   }
+}
+
+function stableStringify(value) {
+  if (Array.isArray(value)) {
+    return `[${value.map(stableStringify).join(',')}]`;
+  }
+  if (value && typeof value === 'object') {
+    return `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${stableStringify(value[key])}`).join(',')}}`;
+  }
+  return JSON.stringify(value);
 }
 
 function renderCategorySummary(catData, totalExpenses) {
