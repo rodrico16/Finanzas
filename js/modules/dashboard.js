@@ -40,8 +40,8 @@ function renderDashGeneral() {
   if (months.length === 0) {
     const c1 = document.getElementById('chart-evolucion');
     const c2 = document.getElementById('chart-doughnut');
-    showChartEmpty(c1, 'Sin datos guardados. Cargá y guardá al menos un mes.');
-    showChartEmpty(c2, 'Sin datos guardados.');
+    showChartEmpty(c1, 'Guardá 1 mes para ver la evolución de ingresos, gastos e inversión.');
+    showChartEmpty(c2, 'Guardá 1 mes con gastos para ver la distribución por categoría.');
     return;
   }
 
@@ -119,8 +119,8 @@ function renderDashGastos() {
   if (!insightsEl || !caminoEl) return;
 
   if (months.length === 0) {
-    insightsEl.innerHTML = '<div class="suggestion-item info"><span class="s-icon">ℹ️</span><span>Sin datos históricos.</span></div>';
-    caminoEl.innerHTML = '<p class="text-muted">Cargá y guardá meses para ver el camino sugerido.</p>';
+    insightsEl.innerHTML = '<div class="empty-state empty-state-compact"><div class="empty-icon">📭</div><strong>Sin meses guardados</strong><p>Guardá 1 mes para generar insights de gasto.</p></div>';
+    caminoEl.innerHTML = '<div class="empty-state empty-state-compact"><div class="empty-icon">🧭</div><strong>Sin camino sugerido todavía</strong><p>Guardá 1 mes completo para recibir próximos pasos accionables.</p></div>';
     return;
   }
 
@@ -189,8 +189,8 @@ function renderDashInversion() {
   const ctxI = document.getElementById('chart-inversion');
 
   if (months.length === 0) {
-    showChartEmpty(ctxI, 'Sin datos guardados.');
-    if (tableEl) tableEl.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div>Sin historial de inversiones.</div>';
+    showChartEmpty(ctxI, 'Guardá 1 mes con inversión real para ver la evolución.');
+    if (tableEl) tableEl.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><strong>Sin historial de inversiones</strong><p>Guardá 1 cierre mensual para completar esta tabla.</p></div>';
     return;
   }
 
