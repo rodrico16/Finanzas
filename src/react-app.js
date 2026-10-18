@@ -10,7 +10,9 @@
     .rx-actions{display:flex;align-items:center;gap:8px}.rx-month{font-size:.78rem;color:#b7d1cf}.rx-action{border:1px solid #41616a;background:transparent;color:#e6f4f2;border-radius:9px;padding:8px 11px;cursor:pointer}.rx-action:hover{background:#234c56}
     .rx-summary{display:grid;grid-template-columns:1.6fr repeat(3,1fr);gap:10px;margin-top:18px}.rx-card{background:#153a44;border:1px solid #285460;border-radius:14px;padding:13px 15px}.rx-card span{display:block;color:#9fc1bd;font-size:.72rem}.rx-card strong{display:block;margin-top:3px;font-size:1.15rem}.rx-card.hero{background:linear-gradient(135deg,#247866,#164f58)}.rx-card.hero strong{font-size:1.45rem;color:#fff}.rx-card.hero span{color:#c6eeea}
     .rx-workbench{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;padding:10px 12px;background:#102f38;border:1px solid #285460;border-radius:12px}.rx-workbench label{color:#b7d1cf;font-size:.75rem;display:block}.rx-workbench input{margin-top:3px;background:#f4fbfa;color:#102f38;border:0;border-radius:7px;padding:7px 8px}.rx-workbench-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.rx-workbench-actions button{border:1px solid #41616a;background:transparent;color:#e6f4f2;border-radius:8px;padding:7px 9px;font:600 .76rem inherit;cursor:pointer}.rx-workbench-actions button.primary{background:#42c7aa;color:#09262c;border-color:#42c7aa}.rx-workbench-actions button.danger{color:#ffc7c2;border-color:#80514e}.rx-workbench-actions button:hover{filter:brightness(1.1)}.rx-subnav{display:flex;gap:6px;margin-top:12px;padding:4px;background:#173841;border-radius:10px;width:max-content}.rx-subnav button{border:0;background:transparent;color:#b7d1cf;border-radius:7px;padding:7px 11px;font:600 .76rem inherit;cursor:pointer}.rx-subnav button.active,.rx-subnav button:hover{background:#42c7aa;color:#09262c}
+    .rx-save-control{display:flex;align-items:center;gap:9px}.rx-save-status{display:inline-flex;align-items:center;gap:6px;color:#c4d9d6;font-size:.75rem;white-space:nowrap}.rx-save-status::before{content:'';width:7px;height:7px;border-radius:50%;background:#f2c66d}.rx-save-status[data-state="saved"]{color:#9ce5ce}.rx-save-status[data-state="saved"]::before{background:#42c7aa}.rx-save-status[data-state="saving"]::before{background:#91c7f4;animation:rx-pulse 1s infinite}.rx-save-status[data-state="error"]{color:#ffaaa3}.rx-save-status[data-state="error"]::before{background:#ff756c}@keyframes rx-pulse{50%{opacity:.35}}
     @media(max-width:800px){.rx-top{flex-wrap:wrap}.rx-nav{order:3;width:100%;justify-content:center}.rx-summary{grid-template-columns:1fr 1fr}.rx-card.hero{grid-column:1/-1}.rx-actions{margin-left:auto}.rx-workbench{align-items:stretch;flex-direction:column}.rx-workbench-actions{justify-content:flex-start}}
+    @media(max-width:480px){.rx-save-control{flex-wrap:wrap}.rx-save-status{width:100%}}
     @media(max-width:480px){.rx-shell{padding:12px}.rx-actions .rx-action{display:none}.rx-month{display:none}.rx-nav button{flex:1;padding:8px 7px}}
     #view-carga>.workbench-hero,#view-carga>.grid-2>.card:has(#income-p1),#view-carga>.grid-2>.card:has(#inv-goal),#view-carga>.card:has(#currency-selector),#view-carga>.card:has(#inv-real),#view-carga>.card:has(#template-name),#view-carga>.card:has(.legacy-collaboration){display:none}
     .rx-collab{grid-column:1/-1}.rx-collab-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.rx-collab textarea{box-sizing:border-box;width:100%;resize:vertical;border:1px solid #c9dcd9;border-radius:7px;padding:8px;font:inherit}.rx-collab .rx-muted{color:#718886;font-size:.82rem;margin:.35rem 0 1rem}.rx-auth-screen{min-height:100vh;display:grid;place-items:center;padding:24px;background:#f4fbfa;color:#173841}.rx-auth-card{width:min(440px,100%);box-sizing:border-box;background:#fff;border:1px solid #dbe9e7;border-radius:16px;padding:24px;text-align:center;box-shadow:0 15px 40px #17384118}.rx-auth-card h2{margin:0 0 8px}.rx-auth-card p{color:#58716f}.rx-auth-card .auth-help{font-size:.8rem;color:#718886;margin-top:14px}.rx-auth-card .auth-error{color:#a33b35;min-height:1.1rem}.rx-auth-card .email-login-form{text-align:left;max-width:none}.rx-auth-card .email-login-row{display:flex;gap:7px}.rx-auth-card input{box-sizing:border-box;flex:1;min-width:0;padding:9px;border:1px solid #c9dcd9;border-radius:7px}.rx-auth-card button{border:1px solid #247866;background:#247866;color:#fff;border-radius:7px;padding:9px 12px;cursor:pointer}.rx-auth-card #google-login-btn{min-height:42px;align-items:center}.rx-auth-card .auth-divider{color:#718886;font-size:.82rem;margin:12px 0}
@@ -55,6 +57,7 @@
     const [view, setView] = React.useState('carga');
     const [tick, setTick] = React.useState(0);
     const [dashboardTab, setDashboardTab] = React.useState('general');
+    const [saveStatus, setSaveStatus] = React.useState(() => window.isCurrentMonthSaved?.() ? 'saved' : 'unsaved');
     const [, refresh] = React.useState(0);
     const m = metrics();
     const go = (next) => { setView(next); if (typeof switchView === 'function') switchView(next); };
@@ -63,9 +66,24 @@
     const changeMonth = (event) => {
       const field = document.getElementById('current-month');
       if (field) { field.value = event.target.value; field.dispatchEvent(new Event('change', { bubbles: true })); }
+      setSaveStatus(window.isCurrentMonthSaved?.() ? 'saved' : 'unsaved');
     };
     const invoke = (name) => { if (typeof window[name] === 'function') window[name](); };
     React.useEffect(() => { const timer = setInterval(() => setTick(v => v + 1), 1200); return () => clearInterval(timer); }, []);
+    React.useEffect(() => {
+      const markDirty = (event) => {
+        if (event.target?.closest?.('#rx-month-picker')) return;
+        setSaveStatus('unsaved');
+      };
+      document.addEventListener('input', markDirty, true);
+      document.addEventListener('change', markDirty, true);
+      return () => { document.removeEventListener('input', markDirty, true); document.removeEventListener('change', markDirty, true); };
+    }, []);
+    const saveCurrentMonth = async () => {
+      setSaveStatus('saving');
+      try { setSaveStatus(await window.saveMonth?.() ? 'saved' : 'error'); }
+      catch (_) { setSaveStatus('error'); }
+    };
     return h('div', { className:'rx-shell' },
       h('div', { className:'rx-top' },
         h('div', { className:'rx-brand' }, h('div',{className:'rx-mark'},'◆'), h('div',null,h('strong',null,'Finanzas Familiares'),h('small',null,'Tu dinero, más claro'))),
@@ -75,7 +93,7 @@
       h('div',{className:'rx-workbench'},
         h('div',null,h('label',{htmlFor:'rx-month-picker'},'Mes activo'),h('input',{id:'rx-month-picker',type:'month',value:month,onChange:changeMonth, 'aria-label':'Seleccionar mes activo'})),
         h('div',{className:'rx-workbench-actions'},
-          h('button',{className:'primary',onClick:()=>invoke('saveMonth')},'Guardar cierre'),
+          h('div',{className:'rx-save-control'},h('button',{className:'primary',onClick:saveCurrentMonth,'aria-describedby':'rx-save-status'},'Guardar cierre'),h('span',{id:'rx-save-status',className:'rx-save-status','data-state':saveStatus,'aria-live':'polite'},({unsaved:'Sin guardar',saving:'Guardando…',saved:'Guardado',error:'Error al guardar'})[saveStatus])),
           h('button',{onClick:()=>invoke('loadMonthData')},'Cargar mes'),
           h('button',{onClick:()=>document.getElementById('import-file')?.click()},'Importar'),
           h('button',{className:'danger',onClick:()=>invoke('deleteCurrentMonth')},'Eliminar')
